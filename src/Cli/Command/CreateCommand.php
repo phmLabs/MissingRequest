@@ -44,6 +44,7 @@ class CreateCommand extends Command
         $dumper = new Dumper();
         $yaml = $dumper->dump($config, 4);
 
+        // if file already exists append/merge the yaml
         file_put_contents($input->getArgument("output"), $yaml);
 
         $output->writeln("\n<info>   Config file was written (" . $input->getArgument("output") . "). " . count($urls) . " requests found.</info>\n");

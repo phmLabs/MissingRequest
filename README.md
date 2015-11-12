@@ -5,4 +5,4 @@
 
 
 ## Example
-```php bin/Missing.php run http://www.amilio.de example/requests.list /tmp/test.xml```
+```php bin/Missing.php run http://www.amilio.de example/requests.yml /tmp/test.xml```

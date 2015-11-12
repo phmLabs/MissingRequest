@@ -20,7 +20,7 @@ The run command runs checks if a given list of urls produce the right requests.
 
 *Example*
 ```
-php bin/Missing.php run example/requests.list /tmp/test.xml
+Missing.phar run example/requests.list /tmp/test.xml
 ```
 
 
@@ -30,7 +30,7 @@ The info command can be used to show all requests an url triggers when called.
 
 *Example*
 ```
-php bin/Missing.php info http://www.amilio.de
+Missing.phar info http://www.amilio.de
 ```
 
 ### create
@@ -39,7 +39,7 @@ The create command is used to create a config file. It calls an url an adds all 
 
 *Example*
 ```
-php bin/Missing.php create http://www.amilio.de /tmp/amilio.yml
+Missing.phar create http://www.amilio.de /tmp/amilio.yml
 ```
 
 ## Configuration
@@ -48,7 +48,6 @@ php bin/Missing.php create http://www.amilio.de /tmp/amilio.yml
 
 ```yml
 # amilio_example.yml
-
 urls:
   startpage:
     url: http://www.amilio.de

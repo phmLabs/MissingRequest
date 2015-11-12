@@ -16,6 +16,6 @@ if (!defined('HEAD_COMPOSER_INSTALL')) {
     die(1);
 }
 $loader = require HEAD_COMPOSER_INSTALL;
-define('MISSING_VERSION', '1.0.0');
+define('MISSING_VERSION', '0.0.3');
 $app = new \whm\MissingRequest\Cli\Application();
 $app->run();

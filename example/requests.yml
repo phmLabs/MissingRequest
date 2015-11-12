@@ -1,0 +1,12 @@
+urls:
+  startpage:
+    url: http://www.amilio.de
+    requests:
+      - http://www.google.com
+      - http://www.amilio.de
+      - www.(.*).de
+  blog:
+    url: http://www.amilio.de/blog/2015/
+    requests:
+      - http://www.amilio.de
+      - www.(.*).de

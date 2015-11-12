@@ -10,6 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Yaml;
 use whm\MissingRequest\PhantomJS\HarRetriever;
 
 class RunCommand extends Command
@@ -26,41 +27,51 @@ class RunCommand extends Command
             ->setName('run');
     }
 
+    private function getUrls($filename)
+    {
+        $config = Yaml::parse(file_get_contents($filename));
+        $urls = $config["urls"];
+
+        return $urls;
+    }
+
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $mandatoryRequests = file($input->getArgument("requestfile"), FILE_IGNORE_NEW_LINES);
-
         $harRetriever = new HarRetriever();
-        $har = $harRetriever->getHarFile(new Uri($input->getArgument('url')));
+        $urls = $this->getUrls($input->getArgument("requestfile"));
 
-        $entries = $har->getEntries();
+        $xUnitReport = new XUnitReport("MissingRequest - " . $input->getArgument("requestfile"));
 
-        $missingRequests = $mandatoryRequests;
+        foreach ($urls as $key => $test) {
+            $har = $harRetriever->getHarFile(new Uri($test["url"]));
+            $mandatoryRequests = $test["requests"];
 
-        $currentRequests = array_keys($entries);
+            $entries = $har->getEntries();
+            $currentRequests = array_keys($entries);
 
-        foreach ($mandatoryRequests as $key => $mandatoryRequest) {
+            foreach ($mandatoryRequests as $key => $mandatoryRequest) {
 
-            foreach ($currentRequests as $currentRequest) {
-                if (preg_match("^" . $mandatoryRequest . "^", $currentRequest)) {
-                    unset($missingRequests[$key]);
-                    break;
+                $testCase = new TestCase("MissingRequest", $test["url"] . " requests " . $mandatoryRequest, 0);
+
+                $requestFound = false;
+                foreach ($currentRequests as $currentRequest) {
+                    if (preg_match("^" . $mandatoryRequest . "^", $currentRequest)) {
+                        $requestFound = true;
+                        break;
+                    }
                 }
-            }
-        }
 
-        $xUnitReport = new XUnitReport("MissingRequest - " . $input->getArgument("url"));
+                if (!$requestFound) {
+                    $testCase->setFailure(new Failure("Missing request", "Request was not found (" . $mandatoryRequest . ")"));
+                }
 
-        foreach ($mandatoryRequests as $mandatoryRequest) {
-            $testCase = new TestCase("MissingRequest", $mandatoryRequest, 0);
-            if (in_array($mandatoryRequest, $missingRequests)) {
-                $testCase->setFailure(new Failure("MissingRequest", "The request " . $mandatoryRequest . " could not be found."));
+                $xUnitReport->addTestCase($testCase);
             }
-            $xUnitReport->addTestCase($testCase);
+
         }
 
         file_put_contents($input->getArgument("xunitfile"), $xUnitReport->toXml());

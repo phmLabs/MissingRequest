@@ -6,6 +6,7 @@
   "require": {
     "php": ">= 5.4.0",
     "symfony/console": "~2.2",
+    "symfony/yaml": "~2.2",
     "guzzlehttp/guzzle": "~6.0",
     "phmlabs/xunitreport": "~1.0.0"
   },

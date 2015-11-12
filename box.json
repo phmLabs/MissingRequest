@@ -1,0 +1,17 @@
+{
+  "directories": ["src", "vendor"],
+  "main": "bin/Missing.php",
+  "output": "bin/Missing.phar",
+  "chmod": "0755",
+  "stub": true,
+  "finder": [
+    {
+      "name": "*.php",
+      "exclude": [
+        "Tests",
+        "tests"
+      ],
+      "in": "vendor"
+    }
+  ]
+}

@@ -19,11 +19,10 @@ class RunCommand extends Command
     {
         $this
             ->setDefinition(array(
-                new InputArgument('url', InputArgument::REQUIRED, 'url to be scanned'),
                 new InputArgument('requestfile', InputArgument::REQUIRED, 'file containing a list of mandatory requests'),
                 new InputArgument('xunitfile', InputArgument::REQUIRED, 'xunit output file'),
             ))
-            ->setDescription('check if requests are fired')
+            ->setDescription('Checks if requests are fired')
             ->setName('run');
     }
 

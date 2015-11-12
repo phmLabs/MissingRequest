@@ -13,6 +13,8 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use whm\MissingRequest\Cli\Command\CreateCommand;
+use whm\MissingRequest\Cli\Command\InfoCommand;
 use whm\MissingRequest\Cli\Command\RunCommand;
 
 class Application extends \Symfony\Component\Console\Application
@@ -21,6 +23,7 @@ class Application extends \Symfony\Component\Console\Application
     {
         parent::__construct('MissingRequest', MISSING_VERSION);
     }
+
     /**
      * @inheritdoc
      */
@@ -34,6 +37,7 @@ class Application extends \Symfony\Component\Console\Application
         }
         return parent::run($input, $output);
     }
+
     /**
      * @inheritdoc
      */
@@ -42,11 +46,14 @@ class Application extends \Symfony\Component\Console\Application
         $this->registerCommands();
         return parent::doRun($input, $output);
     }
+
     /**
      * Initializes all the commands.
      */
     private function registerCommands()
     {
         $this->add(new RunCommand());
+        $this->add(new InfoCommand());
+        $this->add(new CreateCommand());
     }
 }

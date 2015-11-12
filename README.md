@@ -5,4 +5,12 @@
 
 
 ## Example
-```php bin/Missing.php run http://www.amilio.de example/requests.list /tmp/test.xml```
+
+run - Runs a test
+```php bin/Missing.php run example/requests.list /tmp/test.xml```
+
+info - Returns all called request urls
+```php bin/Missing.php info http://www.amilio.de```
+
+create - creates a config file with all called requests
+```php bin/Missing.php create http://www.amilio.de /tmp/amilio.yml```

@@ -6,7 +6,7 @@
   "stub": true,
   "finder": [
     {
-      "name": "*.php",
+      "name": "*.php;*.js",
       "exclude": [
         "Tests",
         "tests"

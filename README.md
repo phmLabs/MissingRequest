@@ -22,9 +22,7 @@ The run command runs checks if a given list of urls produce the right requests.
 ```
 Missing.phar run example/requests.list /tmp/test.xml
 ```
-
 This example will create a xunit conform xml file that can be read by the most continuous integration servers such as jenkins or bamboo.
-
 
 ### info
 
@@ -44,9 +42,13 @@ The create command is used to create a config file. It calls an url an adds all 
 Missing.phar create http://www.amilio.de /tmp/amilio.yml
 ```
 
+If the amilio.yml file already exists it will be overwritten.
+
 ## Configuration
 
 *Example*
+
+This example will check if the two urls (```www.amilio.de/ and www.amilio.de/blog/2015/```) produce requests against google, amilio and any given .de domain.
 
 ```yml
 # amilio_example.yml

@@ -20,7 +20,7 @@ The run command runs checks if a given list of urls produce the right requests.
 
 *Example*
 ```
-Missing.phar run example/requests.list /tmp/test.xml
+Missing.phar run example/requests.list -o /tmp/test.xml -f xunit
 ```
 This example will create a xunit conform xml file that can be read by the most continuous integration servers such as jenkins or bamboo.
 

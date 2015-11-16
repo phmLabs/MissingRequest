@@ -1,3 +1,7 @@
+output:
+  class: whm\MissingRequest\Reporter\Xunit
+  parameters:
+    filename: /tmp/amilio_xunit.xml
 urls:
   startpage:
     url: http://www.amilio.de

@@ -3,15 +3,16 @@
 namespace whm\MissingRequest\Cli\Command;
 
 use GuzzleHttp\Psr7\Uri;
-use phmLabs\XUnitReport\Elements\Failure;
-use phmLabs\XUnitReport\Elements\TestCase;
-use phmLabs\XUnitReport\XUnitReport;
+
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Exception\RuntimeException;
 use Symfony\Component\Yaml\Yaml;
 use whm\MissingRequest\PhantomJS\HarRetriever;
+use whm\MissingRequest\Reporter\XUnit;
 
 class RunCommand extends Command
 {
@@ -20,7 +21,8 @@ class RunCommand extends Command
         $this
             ->setDefinition(array(
                 new InputArgument('requestfile', InputArgument::REQUIRED, 'file containing a list of mandatory requests'),
-                new InputArgument('xunitfile', InputArgument::REQUIRED, 'xunit output file'),
+                new InputOption('outputfile', 'o', InputOption::VALUE_OPTIONAL, 'filename to store result', null),
+                new InputOption('format', 'f', InputOption::VALUE_OPTIONAL, 'output format (default: xunit | available: xunit)', 'xunit'),
             ))
             ->setDescription('Checks if requests are fired')
             ->setName('run');
@@ -41,9 +43,16 @@ class RunCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $harRetriever = new HarRetriever();
-        $urls = $this->getUrls($input->getArgument("requestfile"));
 
-        $xUnitReport = new XUnitReport("MissingRequest - " . $input->getArgument("requestfile"));
+        switch ($input->getOption('format')) {
+            case 'xunit':
+                $reporter = new XUnit($input->getOption("outputfile"));
+                break;
+            default:
+                throw new \RuntimeException("Format (" . $input->getOption('format') . ") not found. ");
+        }
+
+        $urls = $this->getUrls($input->getArgument("requestfile"));
 
         foreach ($urls as $key => $test) {
             $har = $harRetriever->getHarFile(new Uri($test["url"]));
@@ -54,8 +63,6 @@ class RunCommand extends Command
 
             foreach ($mandatoryRequests as $key => $mandatoryRequest) {
 
-                $testCase = new TestCase("MissingRequest", $test["url"] . " requests " . $mandatoryRequest, 0);
-
                 $requestFound = false;
                 foreach ($currentRequests as $currentRequest) {
                     if (preg_match("^" . $mandatoryRequest . "^", $currentRequest)) {
@@ -63,16 +70,15 @@ class RunCommand extends Command
                         break;
                     }
                 }
-
-                if (!$requestFound) {
-                    $testCase->setFailure(new Failure("Missing request", "Request was not found (" . $mandatoryRequest . ")"));
-                }
-
-                $xUnitReport->addTestCase($testCase);
+                $reporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound);
             }
-
         }
+        $result = $reporter->getReport();
 
-        file_put_contents($input->getArgument("xunitfile"), $xUnitReport->toXml());
+        if ($input->getOption('outputfile') == NULL) {
+            $output->writeln($result);
+        } else {
+            file_put_contents($input->getOption('outputfile'), $result);
+        }
     }
 }

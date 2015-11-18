@@ -12,6 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Exception\RuntimeException;
 use Symfony\Component\Yaml\Yaml;
 use whm\MissingRequest\PhantomJS\HarRetriever;
+use whm\MissingRequest\Reporter\Incident;
 use whm\MissingRequest\Reporter\XUnit;
 
 class RunCommand extends Command
@@ -47,6 +48,9 @@ class RunCommand extends Command
         switch ($input->getOption('format')) {
             case 'xunit':
                 $reporter = new XUnit($input->getOption("outputfile"));
+                break;
+            case 'incident':
+                $reporter = new Incident();
                 break;
             default:
                 throw new \RuntimeException("Format (" . $input->getOption('format') . ") not found. ");

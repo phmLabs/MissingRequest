@@ -23,8 +23,13 @@ class HarRetriever
     public function getHarFile(UriInterface $uri)
     {
         $command = $this->phantomJSExec . " " . $this->netSniffTempFile . " " . (string)$uri;
+
         exec($command, $output);
-        return new HarArchive(json_decode(implode($output, "\n")));
+
+        $rawOutput = implode($output, "\n");
+        $jsonOutput = substr($rawOutput, strpos($rawOutput, "{"));
+
+        return new HarArchive(json_decode($jsonOutput));
     }
 
     public function __destruct()

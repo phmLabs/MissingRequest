@@ -17,7 +17,7 @@ class XUnit implements Reporter
         $this->report = new XUnitReport("MissingRequest");
     }
 
-    public function addTestcase($url, $mandatoryUrl, $isFailure)
+    public function addTestcase($url, $mandatoryUrl, $isFailure, $urlKey)
     {
         if ($isFailure) {
             $this->tests[$url][] = $mandatoryUrl;

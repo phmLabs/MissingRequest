@@ -15,7 +15,7 @@ use whm\MissingRequest\PhantomJS\HarRetriever;
 use whm\MissingRequest\Reporter\Incident;
 use whm\MissingRequest\Reporter\XUnit;
 
-class RunCommand extends Command
+class JenkinsCommand extends Command
 {
     protected function configure()
     {
@@ -23,10 +23,9 @@ class RunCommand extends Command
             ->setDefinition(array(
                 new InputArgument('requestfile', InputArgument::REQUIRED, 'file containing a list of mandatory requests'),
                 new InputOption('outputfile', 'o', InputOption::VALUE_OPTIONAL, 'filename to store result', null),
-                new InputOption('format', 'f', InputOption::VALUE_OPTIONAL, 'output format (default: xunit | available: xunit)', 'xunit'),
             ))
             ->setDescription('Checks if requests are fired')
-            ->setName('run');
+            ->setName('jenkins');
     }
 
     private function getUrls($filename)
@@ -45,16 +44,8 @@ class RunCommand extends Command
     {
         $harRetriever = new HarRetriever();
 
-        switch ($input->getOption('format')) {
-            case 'xunit':
-                $reporter = new XUnit($input->getOption("outputfile"));
-                break;
-            case 'incident':
-                $reporter = new Incident();
-                break;
-            default:
-                throw new \RuntimeException("Format (" . $input->getOption('format') . ") not found. ");
-        }
+        $xunitReporter = new XUnit($input->getOption("outputfile"));
+        $incidentReporter = new Incident();
 
         $urls = $this->getUrls($input->getArgument("requestfile"));
 
@@ -74,10 +65,12 @@ class RunCommand extends Command
                         break;
                     }
                 }
-                $reporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $key);
+                $xunitReporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $key);
+                $incidentReporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $key);
             }
         }
-        $result = $reporter->getReport();
+        $result = $xunitReporter->getReport();
+        $incidentReporter->getReport();
 
         if ($input->getOption('outputfile') == NULL) {
             $output->writeln($result);

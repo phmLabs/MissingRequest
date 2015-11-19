@@ -24,15 +24,10 @@ class XUnit implements Reporter
         } else {
             $this->tests[$url][] = false;
         }
-
-
     }
 
     public function getReport()
     {
-
-        var_dump($this->tests);
-
         foreach ($this->tests as $url => $missingUrls) {
             $testCase = new TestCase("MissingRequest", $url, 0);
             foreach ($missingUrls as $missingUrl) {

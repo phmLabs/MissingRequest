@@ -30,16 +30,21 @@ class Incident implements Reporter
 
     public function getReport()
     {
-        $message = "Following requests are missing:";
+
 
         foreach ($this->tests as $url => $missingUrls) {
+
+            $message = "Following requests are missing: <ul>";
             $status = "success";
+
             foreach ($missingUrls as $missingUrl) {
                 if ($missingUrl !== false) {
-                    $message .= "<br> " . $missingUrl;
+                    $message .= "<li>" . $missingUrl."</li>";
                     $status = "failed";
                 }
             }
+
+            $message .= "</ul>";
 
             $parts = parse_url($url);
 

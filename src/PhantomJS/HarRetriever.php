@@ -27,8 +27,10 @@ class HarRetriever
         exec($command, $output);
 
         $rawOutput = implode($output, "\n");
-        $jsonOutput = substr($rawOutput, strpos($rawOutput, "{"), strrpos($rawOutput,"}"));
-        
+
+        $leftTruncatedOutput = substr($rawOutput, strpos($rawOutput, "{"));
+        $jsonOutput = substr($leftTruncatedOutput, 0, strrpos($leftTruncatedOutput, "}") + 1);
+
         return new HarArchive(json_decode($jsonOutput));
     }
 

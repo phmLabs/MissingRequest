@@ -43,7 +43,7 @@ class Incident implements Reporter
                                 $message .= "<ul>";
                                 $groupFound = true;
                             }
-                            $message .= "<li>" . $missingUrl . "</li>";
+                            $message .= "<li>" . stripslashes($missingUrl) . "</li>";
                         }
                     }
                     if ($groupFound) {

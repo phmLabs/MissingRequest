@@ -37,7 +37,7 @@ class Incident implements Reporter
             foreach ($missingUrls as $missingUrl) {
                 if ($missingUrl !== false) {
                     $message .= "<br> " . $missingUrl;
-                    $status = "failed";
+                    $status = "failure";
                 }
             }
 
@@ -56,6 +56,15 @@ class Incident implements Reporter
     {
         $curl = curl_init();
 
+        $responseBody = array(
+            'system' => str_replace("http://", '', $system),
+            'status' => $status,
+            'message' => $message,
+            'identifier' => $identifier,
+            'url' => $this->incidentUrl,
+            'type' => 'missingrequest',
+        );
+
         curl_setopt_array($curl, array(
             CURLOPT_URL => $this->incidentUrl,
             CURLOPT_RETURNTRANSFER => true,
@@ -64,10 +73,10 @@ class Incident implements Reporter
             CURLOPT_TIMEOUT => 30,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => "{\n  \"system\": \"" . str_replace("http://", '', $system) . "\",\n  \"status\": \"" . $status . "\",\n  \"message\": \"" . $message . "\",\n  \"identifier\": \"" . $identifier . "\"\n}",
+            CURLOPT_POSTFIELDS => json_encode($responseBody),
         ));
 
-        $response = curl_exec($curl);
+        curl_exec($curl);
         $err = curl_error($curl);
 
         curl_close($curl);

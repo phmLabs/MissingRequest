@@ -43,10 +43,10 @@ class CreateCommand extends Command
         $config["urls"] = array();
         $config["urls"][$input->getArgument("identifier")] = array();
         $config["urls"][$input->getArgument("identifier")]["url"] = $input->getArgument("url");
-        $config["urls"][$input->getArgument("identifier")]["requests"] = $escapedUrls;
+        $config["urls"][$input->getArgument("identifier")]["requests"]["standard"] = $escapedUrls;
 
         $dumper = new Dumper();
-        $yaml = $dumper->dump($config, 4);
+        $yaml = $dumper->dump($config, 5);
 
         // if file already exists append/merge the yaml
         file_put_contents($input->getArgument("output"), $yaml);

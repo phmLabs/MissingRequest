@@ -49,26 +49,26 @@ class JenkinsCommand extends Command
 
         $urls = $this->getUrls($input->getArgument("requestfile"));
 
-        foreach ($urls as $key => $test) {
-            $har = $harRetriever->getHarFile(new Uri($test["url"]));
-            $mandatoryRequests = $test["requests"];
-
-            $entries = $har->getEntries();
+        foreach ($urls as $pageKey => $test) {
+            $entries = $harRetriever->getHarFile(new Uri($test["url"]))->getEntries();
             $currentRequests = array_keys($entries);
+            $requestGroups = $test["requests"];
 
-            foreach ($mandatoryRequests as $key => $mandatoryRequest) {
-
-                $requestFound = false;
-                foreach ($currentRequests as $currentRequest) {
-                    if (preg_match("^" . $mandatoryRequest . "^", $currentRequest)) {
-                        $requestFound = true;
-                        break;
+            foreach($requestGroups as $groupName => $mandatoryRequests) {
+                foreach ($mandatoryRequests as $mandatoryRequest) {
+                    $requestFound = false;
+                    foreach ($currentRequests as $currentRequest) {
+                        if (preg_match("^" . $mandatoryRequest . "^", $currentRequest)) {
+                            $requestFound = true;
+                            break;
+                        }
                     }
+                    $xunitReporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $groupName, $pageKey);
+                    $incidentReporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $groupName, $pageKey);
                 }
-                $xunitReporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $key);
-                $incidentReporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $key);
             }
         }
+
         $result = $xunitReporter->getReport();
         $incidentReporter->getReport();
 

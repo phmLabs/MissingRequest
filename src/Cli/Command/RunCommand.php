@@ -9,7 +9,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Yaml\Exception\RuntimeException;
 use Symfony\Component\Yaml\Yaml;
 use whm\MissingRequest\PhantomJS\HarRetriever;
 use whm\MissingRequest\Reporter\Incident;
@@ -58,23 +57,22 @@ class RunCommand extends Command
 
         $urls = $this->getUrls($input->getArgument("requestfile"));
 
-        foreach ($urls as $key => $test) {
-            $har = $harRetriever->getHarFile(new Uri($test["url"]));
-            $mandatoryRequests = $test["requests"];
-
-            $entries = $har->getEntries();
+        foreach ($urls as $pageKey => $test) {
+            $entries = $harRetriever->getHarFile(new Uri($test["url"]))->getEntries();
             $currentRequests = array_keys($entries);
+            $requestGroups = $test["requests"];
 
-            foreach ($mandatoryRequests as $key => $mandatoryRequest) {
-
-                $requestFound = false;
-                foreach ($currentRequests as $currentRequest) {
-                    if (preg_match("^" . $mandatoryRequest . "^", $currentRequest)) {
-                        $requestFound = true;
-                        break;
+            foreach($requestGroups as $groupName => $mandatoryRequests) {
+                foreach ($mandatoryRequests as $mandatoryRequest) {
+                    $requestFound = false;
+                    foreach ($currentRequests as $currentRequest) {
+                        if (preg_match("^" . $mandatoryRequest . "^", $currentRequest)) {
+                            $requestFound = true;
+                            break;
+                        }
                     }
+                    $reporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $groupName, $pageKey);
                 }
-                $reporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $key);
             }
         }
         $result = $reporter->getReport();

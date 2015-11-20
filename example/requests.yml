@@ -6,11 +6,14 @@ urls:
   startpage:
     url: http://www.amilio.de
     requests:
-      - http://www.google.com
-      - http://www.amilio.de
-      - www.(.*).de
+      ivw_tracking:
+        - http://www.google.com
+        - http://www.google.com2
+      something:
+        - http://www.amilio.de
+
   blog:
     url: http://www.amilio.de/blog/2015/
     requests:
-      - http://www.amilio.de
-      - www.(.*).de
+       something:
+         - http://www.amilio.de

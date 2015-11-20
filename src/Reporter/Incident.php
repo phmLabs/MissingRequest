@@ -19,38 +19,48 @@ class Incident implements Reporter
         }
     }
 
-    public function addTestcase($url, $mandatoryUrl, $isFailure, $urlKey)
+    public function addTestcase($url, $mandatoryUrl, $isFailure, $groupKey, $urlKey)
     {
         if ($isFailure) {
-            $this->tests[$url][] = $mandatoryUrl;
+            $this->tests[$url][$urlKey][$groupKey][] = $mandatoryUrl;
         } else {
-            $this->tests[$url][] = false;
+            $this->tests[$url][$urlKey][$groupKey][] = false;
         }
     }
 
     public function getReport()
     {
-        foreach ($this->tests as $url => $missingUrls) {
-
-            $message = "Following requests are missing: <ul>";
-            $status = "success";
-
-            foreach ($missingUrls as $missingUrl) {
-                if ($missingUrl !== false) {
-                    $message .= "<li>" . urldecode($missingUrl)."</li>";
-                    $status = "failure";
+        foreach ($this->tests as $url => $urlKeys) {
+            foreach ($urlKeys as $urlKey => $groups) {
+                $message = "";
+                $status = "success";
+                foreach ($groups as $groupName => $missingUrls) {
+                    $groupFound = false;
+                    foreach ($missingUrls as $missingUrl) {
+                        if ($missingUrl !== false) {
+                            if (!$groupFound) {
+                                $message .= "Requests for <strong>" . $groupName . "</strong> were not found.";
+                                $message .= "<ul>";
+                                $groupFound = true;
+                            }
+                            $message .= "<li>" . $missingUrl . "</li>";
+                        }
+                    }
+                    if ($groupFound) {
+                        $message .= "</ul>";
+                        $status = "failure";
+                    }
                 }
             }
-
-            $message .= "</ul>";
-
             $parts = parse_url($url);
-
             $system = $parts["host"];
-            $identifier = "MissingRequest_". $url;
-
+            $identifier = "MissingRequest_" . $url;
             $this->doReport($system, $status, $message, $identifier);
         }
+
+
+        // $this->doReport($system, $status, $message, $identifier);
+
 
         return "Incident was sent";
     }
@@ -64,7 +74,6 @@ class Incident implements Reporter
             'status' => $status,
             'message' => $message,
             'identifier' => $identifier,
-            'url' => $system,
             'type' => 'missingrequest'
         );
 

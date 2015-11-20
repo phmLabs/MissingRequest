@@ -64,8 +64,8 @@ class Incident implements Reporter
             'status' => $status,
             'message' => $message,
             'identifier' => $identifier,
-            'url' => $this->incidentUrl,
-            'type' => 'missingrequest',
+            'url' => $system,
+            'type' => 'missingrequest'
         );
 
         curl_setopt_array($curl, array(
@@ -80,8 +80,6 @@ class Incident implements Reporter
         ));
 
         $response = curl_exec($curl);
-
-        var_dump($response);
 
         $err = curl_error($curl);
 

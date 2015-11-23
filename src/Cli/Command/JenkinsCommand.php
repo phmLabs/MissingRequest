@@ -23,7 +23,7 @@ class JenkinsCommand extends Command
             ->setDefinition(array(
                 new InputArgument('requestfile', InputArgument::REQUIRED, 'file containing a list of mandatory requests'),
                 new InputOption('outputfile', 'o', InputOption::VALUE_OPTIONAL, 'filename to store result', null),
-                new InputOption('debugdir', 'd', InputOption::VALUE_OPTIONAL, 'directory where to put the html files in case of an error')
+                new InputOption('debugdir', 'd', InputOption::VALUE_OPTIONAL, 'directory where to put the html files in case of an error'),
             ))
             ->setDescription('Checks if requests are fired')
             ->setName('jenkins');
@@ -76,6 +76,12 @@ class JenkinsCommand extends Command
 
                     $xunitReporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $groupName, $pageKey);
                     $incidentReporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $groupName, $pageKey);
+                }
+
+                if ($requestFound) {
+                    $output->writeln("  check '$groupName' for missing requests. [<info> OK </info>]");
+                } else {
+                    $output->writeln("  check <error>'$groupName'</error> for missing requests. <error>[FAIL]</error>");
                 }
             }
 

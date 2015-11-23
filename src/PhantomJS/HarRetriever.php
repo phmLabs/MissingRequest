@@ -28,10 +28,18 @@ class HarRetriever
 
         $rawOutput = implode($output, "\n");
 
-        $leftTruncatedOutput = substr($rawOutput, strpos($rawOutput, "{"));
-        $jsonOutput = substr($leftTruncatedOutput, 0, strrpos($leftTruncatedOutput, "}") + 1);
+        $harStart = strpos($rawOutput, "##HARFILE-BEGIN") + 16;
+        $harEnd = strpos($rawOutput, "##HARFILE-END");
+        $harLength = $harEnd - $harStart;
+        $harContent = substr($rawOutput, $harStart, $harLength);
 
-        return new HarArchive(json_decode($jsonOutput));
+        $htmlStart = strpos($rawOutput, "##CONTENT-BEGIN") + 15;
+
+        $htmlEnd = strpos($rawOutput, "##CONTENT-END");
+        $htmlLength = $htmlEnd - $htmlStart;
+        $htmlContent = substr($rawOutput, $htmlStart, $htmlLength);
+
+        return array("harFile" => new HarArchive(json_decode($harContent)), "html" => $htmlContent);
     }
 
     public function __destruct()

@@ -29,9 +29,9 @@ class InfoCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $harRetriever = new HarRetriever();
-        $har = $harRetriever->getHarFile(new Uri($input->getArgument("url")));
+        $harFile = $harRetriever->getHarFile(new Uri($input->getArgument("url")));
 
-        $urls = array_keys($har->getEntries());
+        $urls = array_keys($harFile["harFile"]->getEntries());
 
         $output->writeln("\n<info>Scanning " . $input->getArgument("url") . "</info>\n");
 

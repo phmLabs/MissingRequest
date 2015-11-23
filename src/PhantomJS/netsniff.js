@@ -138,7 +138,16 @@ if (system.args.length === 1) {
                 return document.title;
             });
             har = createHAR(page.address, page.title, page.startTime, page.resources);
+
+            console.log('##HARFILE-BEGIN');
             console.log(JSON.stringify(har, undefined, 4));
+            console.log('##HARFILE-END');
+
+            console.log('##CONTENT-BEGIN');
+            content = page.content;
+            console.log(content);
+            console.log('##CONTENT-END');
+
             phantom.exit();
         }
     });

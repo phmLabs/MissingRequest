@@ -23,6 +23,7 @@ class JenkinsCommand extends Command
             ->setDefinition(array(
                 new InputArgument('requestfile', InputArgument::REQUIRED, 'file containing a list of mandatory requests'),
                 new InputOption('outputfile', 'o', InputOption::VALUE_OPTIONAL, 'filename to store result', null),
+                new InputOption('debugdir', 'd', InputOption::VALUE_OPTIONAL, 'directory where to put the html files in case of an error')
             ))
             ->setDescription('Checks if requests are fired')
             ->setName('jenkins');
@@ -50,11 +51,17 @@ class JenkinsCommand extends Command
         $urls = $this->getUrls($input->getArgument("requestfile"));
 
         foreach ($urls as $pageKey => $test) {
-            $entries = $harRetriever->getHarFile(new Uri($test["url"]))->getEntries();
+            $harInfo = $harRetriever->getHarFile(new Uri($test["url"]));
+            $htmlContent = $harInfo["html"];
+
+            $entries = $harInfo["harFile"]->getEntries();
+
             $currentRequests = array_keys($entries);
             $requestGroups = $test["requests"];
 
-            foreach($requestGroups as $groupName => $mandatoryRequests) {
+            $requestNotFound = false;
+
+            foreach ($requestGroups as $groupName => $mandatoryRequests) {
                 foreach ($mandatoryRequests as $mandatoryRequest) {
                     $requestFound = false;
                     foreach ($currentRequests as $currentRequest) {
@@ -63,9 +70,18 @@ class JenkinsCommand extends Command
                             break;
                         }
                     }
+                    if (!$requestFound) {
+                        $requestNotFound = true;
+                    }
+
                     $xunitReporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $groupName, $pageKey);
                     $incidentReporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $groupName, $pageKey);
                 }
+            }
+
+            if ($requestNotFound && $input->getOption('debugdir') != NULL) {
+                $fileName = $input->getOption('debugdir') . DIRECTORY_SEPARATOR . $pageKey . ".html";
+                file_put_contents($fileName, $htmlContent);
             }
         }
 

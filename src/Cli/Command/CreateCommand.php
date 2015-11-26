@@ -31,9 +31,9 @@ class CreateCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $harRetriever = new HarRetriever();
-        $har = $harRetriever->getHarFile(new Uri($input->getArgument("url")));
+        $harInfo = $harRetriever->getHarFile(new Uri($input->getArgument("url")));
 
-        $urls = array_keys($har->getEntries());
+        $urls = array_keys($harInfo["harFile"]->getEntries());
 
         $escapedUrls = array();
         foreach($urls as $url) {

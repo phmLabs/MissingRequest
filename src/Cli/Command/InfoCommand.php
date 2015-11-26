@@ -15,7 +15,7 @@ class InfoCommand extends Command
     {
         $this
             ->setDefinition(array(
-                new InputArgument('url', InputArgument::REQUIRED, 'url to be scanned')
+                new InputArgument('url', InputArgument::REQUIRED, 'url to be scanned'),
 
             ))
             ->setDescription('Shows all requests')
@@ -23,22 +23,22 @@ class InfoCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $harRetriever = new HarRetriever();
-        $harFile = $harRetriever->getHarFile(new Uri($input->getArgument("url")));
+        $harFile = $harRetriever->getHarFile(new Uri($input->getArgument('url')));
 
-        $urls = array_keys($harFile["harFile"]->getEntries());
+        $urls = array_keys($harFile['harFile']->getEntries());
 
-        $output->writeln("\n<info>Scanning " . $input->getArgument("url") . "</info>\n");
+        $output->writeln("\n<info>Scanning ".$input->getArgument('url')."</info>\n");
 
-        foreach($urls as $url) {
-            $output->writeln(" - " . $url);
+        foreach ($urls as $url) {
+            $output->writeln(' - '.$url);
         }
 
-        $output->writeln("\n<info>   " . count($urls) . " requests found</info>\n");
+        $output->writeln("\n<info>   ".count($urls)." requests found</info>\n");
     }
 }

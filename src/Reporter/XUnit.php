@@ -14,7 +14,7 @@ class XUnit implements Reporter
 
     public function __construct()
     {
-        $this->report = new XUnitReport("MissingRequest");
+        $this->report = new XUnitReport('MissingRequest');
     }
 
     public function addTestcase($url, $mandatoryUrl, $isFailure, $groupKey, $urlKey)
@@ -29,10 +29,10 @@ class XUnit implements Reporter
     public function getReport()
     {
         foreach ($this->tests as $url => $missingUrls) {
-            $testCase = new TestCase("MissingRequest", $url, 0);
+            $testCase = new TestCase('MissingRequest', $url, 0);
             foreach ($missingUrls as $missingUrl) {
                 if ($missingUrl !== false) {
-                    $testCase->addFailure(new Failure("Missing request", "Request was not found (" . $missingUrl . ")"));
+                    $testCase->addFailure(new Failure('Missing request', 'Request was not found ('.$missingUrl.')'));
                 }
             }
             $this->report->addTestCase($testCase);

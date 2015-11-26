@@ -78,7 +78,7 @@ class JenkinsCommand extends Command
                     $incidentReporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $groupName, $pageKey);
                 }
 
-                if ($requestFound) {
+                if ($requestNotFound === false) {
                     $output->writeln("  check '$groupName' for missing requests. [<info> OK </info>]");
                 } else {
                     $output->writeln("  check <error>'$groupName'</error> for missing requests. <error>[FAIL]</error>");

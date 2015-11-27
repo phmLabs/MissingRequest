@@ -3,9 +3,8 @@
  * Created by PhpStorm.
  * User: nils.langner
  * Date: 03.09.15
- * Time: 09:21
+ * Time: 09:21.
  */
-
 namespace whm\MissingRequest\Cli;
 
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -26,7 +25,7 @@ class Application extends \Symfony\Component\Console\Application
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function run(InputInterface $input = null, OutputInterface $output = null)
     {
@@ -36,15 +35,17 @@ class Application extends \Symfony\Component\Console\Application
             $formatter = new OutputFormatter(false, $styles);
             $output = new ConsoleOutput(ConsoleOutput::VERBOSITY_NORMAL, null, $formatter);
         }
+
         return parent::run($input, $output);
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function doRun(InputInterface $input, OutputInterface $output)
     {
         $this->registerCommands();
+
         return parent::doRun($input, $output);
     }
 

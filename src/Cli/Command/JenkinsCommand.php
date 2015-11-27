@@ -19,8 +19,9 @@ class JenkinsCommand extends Command
     {
         $this
             ->setDefinition(array(
+                new InputArgument('apikey', InputArgument::REQUIRED, 'koalamon.com API key'),
                 new InputArgument('requestfile', InputArgument::REQUIRED, 'file containing a list of mandatory requests'),
-                new InputOption('outputfile', 'o', InputOption::VALUE_OPTIONAL, 'filename to store result', null),
+                new InputOption('outputfile', 'o', InputOption::VALUE_REQUIRED, 'filename to store result', null),
                 new InputOption('debugdir', 'd', InputOption::VALUE_OPTIONAL, 'directory where to put the html files in case of an error'),
             ))
             ->setDescription('Checks if requests are fired')
@@ -44,7 +45,7 @@ class JenkinsCommand extends Command
         $harRetriever = new HarRetriever();
 
         $xunitReporter = new XUnit($input->getOption('outputfile'));
-        $incidentReporter = new Incident();
+        $incidentReporter = new Incident($input->getArgument('apikey'));
 
         $urls = $this->getUrls($input->getArgument('requestfile'));
 

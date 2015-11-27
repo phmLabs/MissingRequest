@@ -8,13 +8,11 @@ class Incident implements Reporter
 {
     private $tests;
 
-    private $incidentUrl = 'http://dashboard.phmlabs.com/app_dev.php/webhook/';
+    private $incidentUrl = 'http://www.koalamon.com/app_dev.php/webhook/';
 
-    public function __construct($incidentUrl = null)
+    public function __construct($apiKey)
     {
-        if (!is_null($incidentUrl)) {
-            $this->incidentUrl = $incidentUrl;
-        }
+        $this->incidentUrl = $this->incidentUrl.'?api_key='.$apiKey;
     }
 
     public function addTestcase($url, $mandatoryUrl, $isFailure, $groupKey, $urlKey)

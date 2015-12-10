@@ -24,9 +24,15 @@ class HarRetriever
     {
         $command = $this->phantomJSExec.' '.$this->netSniffTempFile.' '.(string) $uri;
 
-        exec($command, $output);
+        exec($command, $output, $exitCode);
 
         $rawOutput = implode($output, "\n");
+
+        if ($exitCode > 0) {
+            $e = new PhantomJsRuntimeException('Phantom exits with exit code ' . $exitCode . PHP_EOL . $rawOutput);
+            $e->setExitCode($exitCode);
+            throw $e;
+        }
 
         $harStart = strpos($rawOutput, '##HARFILE-BEGIN') + 16;
         $harEnd = strpos($rawOutput, '##HARFILE-END');

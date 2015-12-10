@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use whm\MissingRequest\PhantomJS\HarRetriever;
+use whm\MissingRequest\PhantomJS\PhantomJsRuntimeException;
 
 class InfoCommand extends Command
 {
@@ -23,22 +24,27 @@ class InfoCommand extends Command
     }
 
     /**
-     * @param InputInterface  $input
+     * @param InputInterface $input
      * @param OutputInterface $output
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $harRetriever = new HarRetriever();
-        $harFile = $harRetriever->getHarFile(new Uri($input->getArgument('url')));
+        try {
+            $harFile = $harRetriever->getHarFile(new Uri($input->getArgument('url')));
+        } catch (PhantomJsRuntimeException $e) {
+            $output->writeln("<error>" . $e->getMessage() . "</error>");
+            exit($e->getExitCode());
+        }
 
         $urls = array_keys($harFile['harFile']->getEntries());
 
-        $output->writeln("\n<info>Scanning ".$input->getArgument('url')."</info>\n");
+        $output->writeln("\n<info>Scanning " . $input->getArgument('url') . "</info>\n");
 
         foreach ($urls as $url) {
-            $output->writeln(' - '.$url);
+            $output->writeln(' - ' . $url);
         }
 
-        $output->writeln("\n<info>   ".count($urls)." requests found</info>\n");
+        $output->writeln("\n<info>   " . count($urls) . " requests found</info>\n");
     }
 }

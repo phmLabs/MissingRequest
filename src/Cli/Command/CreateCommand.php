@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Dumper;
 use whm\MissingRequest\PhantomJS\HarRetriever;
+use whm\MissingRequest\PhantomJS\PhantomJsRuntimeException;
 
 class CreateCommand extends Command
 {
@@ -25,13 +26,18 @@ class CreateCommand extends Command
     }
 
     /**
-     * @param InputInterface  $input
+     * @param InputInterface $input
      * @param OutputInterface $output
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $harRetriever = new HarRetriever();
-        $harInfo = $harRetriever->getHarFile(new Uri($input->getArgument('url')));
+        try {
+            $harInfo = $harRetriever->getHarFile(new Uri($input->getArgument('url')));
+        } catch (PhantomJsRuntimeException $e) {
+            $output->writeln("<error>" . $e->getMessage() . "</error>");
+            exit($e->getExitCode());
+        }
 
         $urls = array_keys($harInfo['harFile']->getEntries());
 
@@ -51,6 +57,6 @@ class CreateCommand extends Command
         // if file already exists append/merge the yaml
         file_put_contents($input->getArgument('output'), $yaml);
 
-        $output->writeln("\n<info>   Config file was written (".$input->getArgument('output').'). '.count($escapedUrls)." requests found.</info>\n");
+        $output->writeln("\n<info>   Config file was written (" . $input->getArgument('output') . '). ' . count($escapedUrls) . " requests found.</info>\n");
     }
 }

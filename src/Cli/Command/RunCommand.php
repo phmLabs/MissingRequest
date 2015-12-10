@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 use whm\MissingRequest\PhantomJS\HarRetriever;
+use whm\MissingRequest\PhantomJS\PhantomJsRuntimeException;
 use whm\MissingRequest\Reporter\Incident;
 use whm\MissingRequest\Reporter\XUnit;
 
@@ -58,7 +59,13 @@ class RunCommand extends Command
         $urls = $this->getUrls($input->getArgument('requestfile'));
 
         foreach ($urls as $pageKey => $test) {
-            $harInfo = $harRetriever->getHarFile(new Uri($test['url']));
+            try {
+                $harInfo = $harRetriever->getHarFile(new Uri($test['url']));
+            } catch (PhantomJsRuntimeException $e) {
+                $output->writeln("<error>".$e->getMessage()."</error>");
+                exit($e->getExitCode());
+            }
+
             $htmlContent = $harInfo['html'];
 
             $entries = $harInfo['harFile']->getEntries();

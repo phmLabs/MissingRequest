@@ -38,7 +38,7 @@ class JenkinsCommand extends Command
     }
 
     /**
-     * @param InputInterface  $input
+     * @param InputInterface $input
      * @param OutputInterface $output
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -54,7 +54,7 @@ class JenkinsCommand extends Command
             try {
                 $harInfo = $harRetriever->getHarFile(new Uri($test['url']));
             } catch (PhantomJsRuntimeException $e) {
-                $output->writeln("<error>".$e->getMessage()."</error>");
+                $output->writeln("<error>" . $e->getMessage() . "</error>");
                 exit($e->getExitCode());
             }
 
@@ -72,7 +72,7 @@ class JenkinsCommand extends Command
                 foreach ($mandatoryRequests as $mandatoryRequest) {
                     $requestFound = false;
                     foreach ($currentRequests as $currentRequest) {
-                        if (preg_match('^'.$mandatoryRequest.'^', $currentRequest)) {
+                        if (preg_match('^' . $mandatoryRequest . '^', $currentRequest)) {
                             $requestFound = true;
                             break;
                         }
@@ -87,15 +87,18 @@ class JenkinsCommand extends Command
                 }
 
                 if ($groupFailed === false) {
-                    $output->writeln("  check ".count($mandatoryRequests)." URLs of '$groupName' for missing requests. [<info> OK </info>]");
+                    $output->writeln("  check " . count($mandatoryRequests) . " URLs of '$groupName' for missing requests. [<info> OK </info>]");
                 } else {
-                    $output->writeln("  check ".count($mandatoryRequests)." URLs of <error>'$groupName'</error> for missing requests. <error>[FAIL]</error>");
+                    $output->writeln("  check " . count($mandatoryRequests) . " URLs of <error>'$groupName'</error> for missing requests. <error>[FAIL]</error>");
                 }
             }
 
             if ($requestNotFound && $input->getOption('debugdir') != null) {
-                $fileName = $input->getOption('debugdir').DIRECTORY_SEPARATOR.$pageKey.'.html';
-                file_put_contents($fileName, $htmlContent);
+                $htmlFileName = $input->getOption('debugdir') . DIRECTORY_SEPARATOR . $pageKey . '.html';
+                file_put_contents($htmlFileName, $htmlContent);
+
+                $harFileName = $input->getOption('debugdir') . DIRECTORY_SEPARATOR . $pageKey . '.har';
+                file_put_contents($harFileName, json_encode((array)$harInfo['harFile'], JSON_PRETTY_PRINT));
             }
         }
 

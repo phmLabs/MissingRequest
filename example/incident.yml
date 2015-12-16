@@ -1,0 +1,19 @@
+output:
+  class: whm\MissingRequest\Reporter\Xunit
+  parameters:
+    filename: /tmp/amilio_xunit.xml
+urls:
+  startpage:
+    url: http://www.amilio.de
+    requests:
+      ivw_tracking:
+        - http://www.google.com
+        - http://www.google.com2
+      something:
+        - http://www.amilio.de
+
+  blog:
+    url: http://www.amilio.de/blog/2015/
+    requests:
+       something:
+         - http://www.amilio.de

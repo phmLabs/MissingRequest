@@ -1,7 +1,13 @@
 if (!Date.prototype.toISOString) {
     Date.prototype.toISOString = function () {
-        function pad(n) { return n < 10 ? '0' + n : n; }
-        function ms(n) { return n < 10 ? '00'+ n : n < 100 ? '0' + n : n }
+        function pad(n) {
+            return n < 10 ? '0' + n : n;
+        }
+
+        function ms(n) {
+            return n < 10 ? '00' + n : n < 100 ? '0' + n : n
+        }
+
         return this.getFullYear() + '-' +
             pad(this.getMonth() + 1) + '-' +
             pad(this.getDate()) + 'T' +
@@ -12,8 +18,7 @@ if (!Date.prototype.toISOString) {
     }
 }
 
-function createHAR(address, title, startTime, resources)
-{
+function createHAR(address, title, startTime, resources) {
     var entries = [];
 
     resources.forEach(function (resource) {
@@ -137,6 +142,7 @@ if (system.args.length === 1) {
             page.title = page.evaluate(function () {
                 return document.title;
             });
+
             har = createHAR(page.address, page.title, page.startTime, page.resources);
 
             console.log('##HARFILE-BEGIN');

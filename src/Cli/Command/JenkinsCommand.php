@@ -43,6 +43,8 @@ class JenkinsCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $testCount = 2;
+
         $harRetriever = new HarRetriever();
 
         $xunitReporter = new XUnit($input->getOption("outputfile"));
@@ -51,32 +53,48 @@ class JenkinsCommand extends Command
         $urls = $this->getUrls($input->getArgument("requestfile"));
 
         foreach ($urls as $pageKey => $test) {
-            $harInfo = $harRetriever->getHarFile(new Uri($test["url"]));
-            $htmlContent = $harInfo["html"];
 
-            $entries = $harInfo["harFile"]->getEntries();
+            for ($i = 0; $i < $testCount; $i++) {
 
-            $currentRequests = array_keys($entries);
-            $requestGroups = $test["requests"];
+                $harInfo = $harRetriever->getHarFile(new Uri($test["url"]));
+                $htmlContent = $harInfo["html"];
 
-            $requestNotFound = false;
+                $entries = $harInfo["harFile"]->getEntries();
 
-            foreach ($requestGroups as $groupName => $mandatoryRequests) {
-                foreach ($mandatoryRequests as $mandatoryRequest) {
-                    $requestFound = false;
-                    foreach ($currentRequests as $currentRequest) {
-                        if (preg_match("^" . $mandatoryRequest . "^", $currentRequest)) {
-                            $requestFound = true;
-                            break;
+                $currentRequests = array_keys($entries);
+                $requestGroups = $test["requests"];
+
+                $requestNotFound = false;
+
+                foreach ($requestGroups as $groupName => $mandatoryRequests) {
+                    foreach ($mandatoryRequests as $mandatoryRequest) {
+                        $requestFound = false;
+                        foreach ($currentRequests as $currentRequest) {
+                            if (preg_match("^" . $mandatoryRequest . "^", $currentRequest)) {
+                                $requestFound = true;
+                                break;
+                            }
                         }
-                    }
-                    if (!$requestFound) {
-                        $requestNotFound = true;
-                    }
+                        if (!$requestFound) {
+                            $requestNotFound = true;
+                        }
 
-                    $xunitReporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $groupName, $pageKey);
-                    $incidentReporter->addTestcase($test["url"], $mandatoryRequest, !$requestFound, $groupName, $pageKey);
+                        $results[$i][] = array("url" => $test["url"],
+                            'mandatoryRequest' => $mandatoryRequest,
+                            'requestFound' => $requestFound,
+                            'groupName' => $groupName,
+                            'pageKey' => $pageKey);
+                    }
                 }
+            }
+
+            foreach ($results[0] as $result) {
+                $requestFound = false;
+                for ($i = 0; $i < $testCount; $i++) {
+                    $requestFound = $requestFound && $results[$i]['requestFound'];
+                }
+                $xunitReporter->addTestcase($result["url"], $result['mandatoryRequest'], !$requestFound, $result['groupName'], $result['pageKey']);
+                $incidentReporter->addTestcase($result["url"], $result['mandatoryRequest'], !$requestFound, $result['groupName'], $result['pageKey']);
             }
 
             if ($requestNotFound && $input->getOption('debugdir') != NULL) {

@@ -51,6 +51,8 @@ class JenkinsCommand extends Command
 
         $urls = $this->getUrls($input->getArgument('requestfile'));
 
+        $results = array();
+
         foreach ($urls as $pageKey => $test) {
             for ($i = 0; $i < $testCount; $i++) {
                 try {
@@ -100,10 +102,15 @@ class JenkinsCommand extends Command
         }
 
         foreach ($results[0] as $key => $result) {
+
             $requestFound = false;
             for ($i = 0; $i < $testCount; $i++) {
-                $requestFound = $requestFound || $results[$i][$key]['requestFound'];
+                if ($results[$i][$key]['requestFound']) {
+                    $requestFound = true;
+                    break;
+                };
             }
+
             $xunitReporter->addTestcase($result["url"], $result['mandatoryRequest'], !$requestFound, $result['groupName'], $result['pageKey']);
             $incidentReporter->addTestcase($result["url"], $result['mandatoryRequest'], !$requestFound, $result['groupName'], $result['pageKey']);
 

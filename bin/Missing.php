@@ -1,6 +1,6 @@
 #!/usr/bin/env php
 <?php
-foreach (array(__DIR__ . '/../../../../vendor/autoload.php', __DIR__ . '/../vendor/autoload.php', __DIR__ . '/vendor/autoload.php') as $file) {
+foreach (array(__DIR__.'/../../../../vendor/autoload.php', __DIR__.'/../vendor/autoload.php', __DIR__.'/vendor/autoload.php') as $file) {
     if (file_exists($file)) {
         define('HEAD_COMPOSER_INSTALL', $file);
         break;
@@ -9,13 +9,13 @@ foreach (array(__DIR__ . '/../../../../vendor/autoload.php', __DIR__ . '/../vend
 unset($file);
 if (!defined('HEAD_COMPOSER_INSTALL')) {
     fwrite(STDERR,
-        'You need to set up the project dependencies using the following commands:' . PHP_EOL .
-        'wget http://getcomposer.org/composer.phar' . PHP_EOL .
-        'php composer.phar install' . PHP_EOL
+        'You need to set up the project dependencies using the following commands:'.PHP_EOL.
+        'wget http://getcomposer.org/composer.phar'.PHP_EOL.
+        'php composer.phar install'.PHP_EOL
     );
     die(1);
 }
 $loader = require HEAD_COMPOSER_INSTALL;
-define('MISSING_VERSION', '0.0.3');
+define('MISSING_VERSION', '0.3.1');
 $app = new \whm\MissingRequest\Cli\Application();
 $app->run();

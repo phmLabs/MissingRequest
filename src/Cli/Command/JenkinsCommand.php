@@ -93,9 +93,9 @@ class JenkinsCommand extends Command
                     }
 
                     if ($groupFailed === false) {
-                        $output->writeln("  check " . count($mandatoryRequests) . " URLs of '$groupName' for missing requests. [<info> OK </info>]");
+                        $output->writeln("  check " . count($mandatoryRequests) . " URLs of '$pageKey - $groupName' for missing requests. [<info> OK </info>]");
                     } else {
-                        $output->writeln("  check " . count($mandatoryRequests) . " URLs of <error>'$groupName'</error> for missing requests. <error>[FAIL]</error>");
+                        $output->writeln("  check " . count($mandatoryRequests) . " URLs of <error>'$pageKey - $groupName'</error> for missing requests. <error>[FAIL]</error>");
                     }
                 }
             }

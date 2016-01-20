@@ -2,6 +2,7 @@
 
 namespace whm\MissingRequest\Cli\Command;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,96 +13,142 @@ use Symfony\Component\Yaml\Yaml;
 use whm\MissingRequest\PhantomJS\HarRetriever;
 use whm\MissingRequest\PhantomJS\PhantomJsRuntimeException;
 use whm\MissingRequest\Reporter\Incident;
-use whm\MissingRequest\Reporter\XUnit;
 
-class RunCommand extends Command
+class KoalamonCommand extends Command
 {
     protected function configure()
     {
         $this
             ->setDefinition(array(
-                new InputArgument('requestfile', InputArgument::REQUIRED, 'file containing a list of mandatory requests'),
-                new InputOption('outputfile', 'o', InputOption::VALUE_OPTIONAL, 'filename to store result', null),
-                new InputOption('format', 'f', InputOption::VALUE_OPTIONAL, 'output format (default: xunit | available: xunit)', 'xunit'),
+                new InputArgument('url', InputArgument::REQUIRED, 'The koalamon url'),
                 new InputOption('debugdir', 'd', InputOption::VALUE_OPTIONAL, 'directory where to put the html files in case of an error'),
             ))
-            ->setDescription('Checks if requests are fired')
-            ->setName('run');
+            ->setDescription('Checks if requests are fired and sends the results to koalamon')
+            ->setName('koalamon');
     }
 
-    private function getUrls($filename)
+    private function getUrls($url)
     {
-        $config = Yaml::parse(file_get_contents($filename));
-        $urls = $config['urls'];
+        $httpClient = new Client();
+        $content = $httpClient->get(new Uri($url));
 
-        return $urls;
+        $config = json_decode($content->getBody());
+
+        $projects = array();
+
+        foreach ($config as $configElement) {
+
+            $urls = array();
+
+            $pageKey = $configElement->system->name;
+            $url = $configElement->system->url;
+
+            $urls[$pageKey]["url"] = $url;
+            $urls[$pageKey]["project"] = $configElement->system->project;
+
+            $requests = array();
+
+            foreach ($configElement->collections as $collection) {
+                $requests[$collection->name] = array();
+                foreach ($collection->requests as $collectionRequest) {
+                    $requests[$collection->name][] = $collectionRequest->pattern;
+                }
+            }
+
+            $urls[$pageKey]['requests'] = $requests;
+
+            if (!array_key_exists($configElement->system->project->identifier, $projects)) {
+                $projects[$configElement->system->project->identifier] = array();
+            }
+            if (!array_key_exists('urls', $projects[$configElement->system->project->identifier])) {
+                $projects[$configElement->system->project->identifier]['urls'] = [];
+            }
+
+            $projects[$configElement->system->project->identifier]['project'] = $configElement->system->project;
+            $projects[$configElement->system->project->identifier]['urls'] = array_merge($urls, $projects[$configElement->system->project->identifier]['urls']);
+        }
+
+        return $projects;
     }
 
     /**
-     * @param InputInterface  $input
+     * @param InputInterface $input
      * @param OutputInterface $output
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $testCount = 2;
         $harRetriever = new HarRetriever();
 
-        switch ($input->getOption('format')) {
-            case 'xunit':
-                $reporter = new XUnit($input->getOption('outputfile'));
-                break;
-            case 'incident':
-                $reporter = new Incident();
-                break;
-            default:
-                throw new \RuntimeException('Format ('.$input->getOption('format').') not found. ');
-        }
+        $projects = $this->getUrls($input->getArgument('url'));
 
-        $urls = $this->getUrls($input->getArgument('requestfile'));
+        $results = array();
 
-        foreach ($urls as $pageKey => $test) {
-            try {
-                $harInfo = $harRetriever->getHarFile(new Uri($test['url']));
-            } catch (PhantomJsRuntimeException $e) {
-                $output->writeln("<error>".$e->getMessage()."</error>");
-                exit($e->getExitCode());
-            }
+        foreach ($projects as $project) {
 
-            $htmlContent = $harInfo['html'];
+            $incidentReporter = new Incident($project['project']->api_key);
 
-            $entries = $harInfo['harFile']->getEntries();
+            foreach ($project['urls'] as $pageKey => $test) {
 
-            $currentRequests = array_keys($entries);
-            $requestGroups = $test['requests'];
+                for ($i = 0; $i < $testCount; $i++) {
+                    try {
+                        $harInfo = $harRetriever->getHarFile(new Uri($test['url']));
+                    } catch (PhantomJsRuntimeException $e) {
+                        $output->writeln("<error>" . $e->getMessage() . "</error>");
+                        exit($e->getExitCode());
+                    }
 
-            $requestNotFound = false;
+                    $htmlContent = $harInfo['html'];
 
-            foreach ($requestGroups as $groupName => $mandatoryRequests) {
-                foreach ($mandatoryRequests as $mandatoryRequest) {
-                    $requestFound = false;
-                    foreach ($currentRequests as $currentRequest) {
-                        if (preg_match('^'.$mandatoryRequest.'^', $currentRequest)) {
-                            $requestFound = true;
-                            break;
+                    $entries = $harInfo['harFile']->getEntries();
+
+                    $currentRequests = array_keys($entries);
+                    $requestGroups = $test['requests'];
+
+                    foreach ($requestGroups as $groupName => $mandatoryRequests) {
+                        foreach ($mandatoryRequests as $mandatoryRequest) {
+                            $requestFound = false;
+                            foreach ($currentRequests as $currentRequest) {
+                                if (preg_match('^' . $mandatoryRequest . '^', $currentRequest)) {
+                                    $requestFound = true;
+                                    break;
+                                }
+                            }
+                            $results[$i][] = array("url" => $test["url"],
+                                'mandatoryRequest' => $mandatoryRequest,
+                                'requestFound' => $requestFound,
+                                'groupName' => $groupName,
+                                'pageKey' => $pageKey,
+                                'htmlContent' => $htmlContent,
+                                'harContent' => json_encode((array)$harInfo['harFile']));
                         }
                     }
-                    if (!$requestFound) {
-                        $requestNotFound = true;
-                    }
-                    $reporter->addTestcase($test['url'], $mandatoryRequest, !$requestFound, $groupName, $pageKey);
                 }
             }
 
-            if ($requestNotFound && $input->getOption('debugdir') != null) {
-                $fileName = $input->getOption('debugdir').DIRECTORY_SEPARATOR.$pageKey.'.html';
-                file_put_contents($fileName, $htmlContent);
-            }
-        }
-        $result = $reporter->getReport();
 
-        if ($input->getOption('outputfile') == null) {
-            $output->writeln($result);
-        } else {
-            file_put_contents($input->getOption('outputfile'), $result);
+            foreach ($results[0] as $key => $result) {
+
+                $requestFound = false;
+                for ($i = 0; $i < $testCount; $i++) {
+                    if ($results[$i][$key]['requestFound']) {
+                        $requestFound = true;
+                        break;
+                    };
+                }
+
+                $incidentReporter->addTestcase($result["url"], $result['mandatoryRequest'], !$requestFound, $result['groupName'], $result['pageKey']);
+
+                if (!$requestFound && $input->getOption('debugdir') != null) {
+                    $htmlFileName = $input->getOption('debugdir') . DIRECTORY_SEPARATOR . $result['pageKey'] . '.html';
+                    $harFileName = $input->getOption('debugdir') . DIRECTORY_SEPARATOR . $result['pageKey'] . '.har';
+
+                    file_put_contents($htmlFileName, $result['htmlContent']);
+                    file_put_contents($harFileName, $result['harContent'], JSON_PRETTY_PRINT);
+                }
+            }
+
+            $incidentReporter->getReport();
         }
     }
 }

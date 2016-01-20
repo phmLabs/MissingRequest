@@ -2,18 +2,19 @@
 
 namespace whm\MissingRequest\Reporter;
 
+use GuzzleHttp\Client;
+use Koalamon\Client\Reporter\Event;
 use phmLabs\XUnitReport\Elements\Failure;
 
 class Incident implements Reporter
 {
     private $tests;
 
-    private $incidentUrl = 'http://www.koalamon.com/app_dev.php/webhook/';
-    private $incidentUrlOld = 'http://dashboard.phmlabs.com/app_dev.php/webhook/';
+    private $apiKey;
 
     public function __construct($apiKey)
     {
-        $this->incidentUrl = $this->incidentUrl . '?api_key=' . $apiKey;
+        $this->apiKey = $apiKey;
     }
 
     public function addTestcase($url, $mandatoryUrl, $isFailure, $groupKey, $urlKey)
@@ -53,7 +54,6 @@ class Incident implements Reporter
             $system = $parts['host'];
             $identifier = 'MissingRequest_' . $url;
             $this->doReport($system, $status, $message, $identifier);
-            $this->doOldReport($system, $status, $message, $identifier);
         }
 
         return 'Incident was sent';
@@ -61,71 +61,9 @@ class Incident implements Reporter
 
     private function doReport($system, $status, $message, $identifier)
     {
-        $curl = curl_init();
+        $reporter = new \Koalamon\Client\Reporter\Reporter('', $this->apiKey, new Client());
+        $event = new Event($identifier, $system, $status, 'missingRequest', $message);
 
-        $responseBody = array(
-            'system' => str_replace('http://', '', $system),
-            'status' => $status,
-            'message' => $message,
-            'identifier' => $identifier,
-            'type' => 'missingrequest',
-        );
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $this->incidentUrl,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => json_encode($responseBody),
-        ));
-
-        $response = curl_exec($curl);
-
-        $err = curl_error($curl);
-
-        curl_close($curl);
-
-        return $err;
+        $reporter->sendEvent($event);
     }
-
-
-    /**
-     * @TODO: Remove this call, if http://dashboard.phmlabs.com doesnt exist anymore
-     */
-    private function doOldReport($system, $status, $message, $identifier)
-    {
-        $curl = curl_init();
-
-        $responseBody = array(
-            'system' => str_replace('http://', '', $system),
-            'status' => $status,
-            'message' => $message,
-            'identifier' => $identifier,
-            'type' => 'missingrequest',
-        );
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $this->incidentUrlOld,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => json_encode($responseBody),
-        ));
-
-        $response = curl_exec($curl);
-
-        $err = curl_error($curl);
-
-        curl_close($curl);
-
-        return $err;
-    }
-
-
 }

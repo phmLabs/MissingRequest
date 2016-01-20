@@ -89,8 +89,9 @@ class KoalamonCommand extends Command
             $incidentReporter = new Incident($project['project']->api_key);
 
             foreach ($project['urls'] as $pageKey => $test) {
-
+                $output->writeln('Checking ' . $test['url'] . ' ...');
                 for ($i = 0; $i < $testCount; $i++) {
+
                     try {
                         $harInfo = $harRetriever->getHarFile(new Uri($test['url']));
                     } catch (PhantomJsRuntimeException $e) {

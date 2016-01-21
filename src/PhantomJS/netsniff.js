@@ -111,6 +111,15 @@ if (system.args.length === 1) {
     page.address = system.args[1];
     page.resources = [];
 
+    page.settings.resourceTimeout = 20000; // 5 seconds
+
+    page.onResourceTimeout = function(e) {
+        console.log(e.errorCode);   // it'll probably be 408
+        console.log(e.errorString); // it'll probably be 'Network timeout on resource'
+        console.log(e.url);         // the url whose request timed out
+        phantom.exit(1);
+    };
+
     page.onLoadStarted = function () {
         page.startTime = new Date();
     };

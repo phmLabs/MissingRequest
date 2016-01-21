@@ -125,6 +125,10 @@ class KoalamonCommand extends Command
                 }
             }
 
+            if (count($results) == 0) {
+                continue;
+            }
+
             foreach ($results[0] as $key => $result) {
 
                 $requestFound = false;

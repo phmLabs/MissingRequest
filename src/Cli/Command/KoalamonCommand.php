@@ -9,7 +9,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Yaml\Yaml;
 use whm\MissingRequest\PhantomJS\HarRetriever;
 use whm\MissingRequest\PhantomJS\PhantomJsRuntimeException;
 use whm\MissingRequest\Reporter\Incident;
@@ -67,7 +66,6 @@ class KoalamonCommand extends Command
             $projects[$configElement->system->project->identifier]['project'] = $configElement->system->project;
             $projects[$configElement->system->project->identifier]['urls'] = array_merge($urls, $projects[$configElement->system->project->identifier]['urls']);
         }
-
         return $projects;
     }
 
@@ -82,14 +80,14 @@ class KoalamonCommand extends Command
 
         $projects = $this->getUrls($input->getArgument('url'));
 
-        $results = array();
-
         foreach ($projects as $project) {
 
+            $results = array();
             $incidentReporter = new Incident($project['project']->api_key);
 
             foreach ($project['urls'] as $pageKey => $test) {
                 $output->writeln('Checking ' . $test['url'] . ' ...');
+
                 for ($i = 0; $i < $testCount; $i++) {
 
                     try {
@@ -126,7 +124,6 @@ class KoalamonCommand extends Command
                     }
                 }
             }
-
 
             foreach ($results[0] as $key => $result) {
 

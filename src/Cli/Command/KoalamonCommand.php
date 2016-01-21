@@ -94,7 +94,7 @@ class KoalamonCommand extends Command
                         $harInfo = $harRetriever->getHarFile(new Uri($test['url']));
                     } catch (PhantomJsRuntimeException $e) {
                         $output->writeln("<error>" . $e->getMessage() . "</error>");
-                        exit($e->getExitCode());
+                        continue;
                     }
 
                     $htmlContent = $harInfo['html'];

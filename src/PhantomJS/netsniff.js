@@ -106,14 +106,16 @@ if (system.args.length === 1) {
     phantom.exit(1);
 } else {
 
-    page.settings.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/538.1 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/538.1';
+    page.settings.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36';
+
+    page.clearMemoryCache();
 
     page.address = system.args[1];
     page.resources = [];
 
-    page.settings.resourceTimeout = 20000; // 5 seconds
+    // page.settings.resourceTimeout = 20000; // 5 seconds
 
-    page.onResourceTimeout = function(e) {
+    page.onResourceTimeout = function (e) {
         console.log(e.errorCode);   // it'll probably be 408
         console.log(e.errorString); // it'll probably be 'Network timeout on resource'
         console.log(e.url);         // the url whose request timed out
@@ -125,6 +127,7 @@ if (system.args.length === 1) {
     };
 
     page.onResourceRequested = function (req) {
+        // console.log("REQUEST: " + req.url);
         page.resources[req.id] = {
             request: req,
             startReply: null,
@@ -147,23 +150,26 @@ if (system.args.length === 1) {
             console.log('FAIL to load the address');
             phantom.exit(1);
         } else {
-            page.endTime = new Date();
-            page.title = page.evaluate(function () {
-                return document.title;
-            });
 
-            har = createHAR(page.address, page.title, page.startTime, page.resources);
+            window.setTimeout(function () {
+                page.endTime = new Date();
+                page.title = page.evaluate(function () {
+                    return document.title;
+                });
 
-            console.log('##HARFILE-BEGIN');
-            console.log(JSON.stringify(har, undefined, 4));
-            console.log('##HARFILE-END');
+                har = createHAR(page.address, page.title, page.startTime, page.resources);
 
-            console.log('##CONTENT-BEGIN');
-            content = page.content;
-            console.log(content);
-            console.log('##CONTENT-END');
+                console.log('##HARFILE-BEGIN');
+                console.log(JSON.stringify(har, undefined, 4));
+                console.log('##HARFILE-END');
 
-            phantom.exit();
+                console.log('##CONTENT-BEGIN');
+                content = page.content;
+                console.log(content);
+                console.log('##CONTENT-END');
+
+                phantom.exit();
+            }, 1000); // Change timeout as required to allow sufficient time
         }
     });
 }

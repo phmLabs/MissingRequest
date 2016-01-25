@@ -37,7 +37,7 @@ class Incident implements Reporter
                     foreach ($missingUrls as $missingUrl) {
                         if ($missingUrl !== false) {
                             if (!$groupFound) {
-                                $message .= 'Requests for <strong>' . $groupName . '</strong> were not found.';
+                                $message .= 'Requests for <strong>' . $groupName . '</strong> on '. $url . ' were not found.';
                                 $message .= '<ul>';
                                 $groupFound = true;
                             }

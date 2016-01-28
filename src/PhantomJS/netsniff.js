@@ -102,9 +102,16 @@ var page = require('webpage').create(),
     system = require('system');
 
 if (system.args.length === 1) {
-    console.log('Usage: netsniff.js <some URL>');
+    console.log('Usage: netsniff.js <some URL> <wait>');
     phantom.exit(1);
 } else {
+
+    var waitTime;
+    if(system.args[2]) {
+        waitTime = system.args[2];
+    }else{
+        waitTime = 1000;
+    }
 
     page.settings.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36';
 
@@ -169,7 +176,7 @@ if (system.args.length === 1) {
                 console.log('##CONTENT-END');
 
                 phantom.exit();
-            }, 1000); // Change timeout as required to allow sufficient time
+            }, waitTime); // Change timeout as required to allow sufficient time
         }
     });
 }

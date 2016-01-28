@@ -17,12 +17,12 @@ class HarRetriever
         }
 
         $this->netSniffTempFile = \tempnam('missing', 'netsniff_');
-        copy(__DIR__.'/'.$this->netsniffFile, $this->netSniffTempFile);
+        copy(__DIR__ . '/' . $this->netsniffFile, $this->netSniffTempFile);
     }
 
-    public function getHarFile(UriInterface $uri)
+    public function getHarFile(UriInterface $uri, $timeout = 1000)
     {
-        $command = $this->phantomJSExec.' '.$this->netSniffTempFile.' '.(string) $uri;
+        $command = $this->phantomJSExec . ' ' . $this->netSniffTempFile . ' ' . (string)$uri . " " . $timeout;
 
         exec($command, $output, $exitCode);
 

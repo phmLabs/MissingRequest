@@ -21,6 +21,7 @@ class KoalamonCommand extends Command
             ->setDefinition(array(
                 new InputArgument('url', InputArgument::REQUIRED, 'The koalamon url'),
                 new InputOption('debugdir', 'd', InputOption::VALUE_OPTIONAL, 'directory where to put the html files in case of an error'),
+                new InputOption('koalamon_server', 'k', InputOption::VALUE_OPTIONAL, 'Koalamon Server')
             ))
             ->setDescription('Checks if requests are fired and sends the results to koalamon')
             ->setName('koalamon');
@@ -83,7 +84,12 @@ class KoalamonCommand extends Command
         foreach ($projects as $project) {
 
             $results = array();
-            $incidentReporter = new Incident($project['project']->api_key);
+
+            if ($input->getOption('koalamon_server')) {
+                $incidentReporter = new Incident($project['project']->api_key, $input->getOption('koalamon_server'));
+            } else {
+                $incidentReporter = new Incident($project['project']->api_key);
+            }
 
             foreach ($project['urls'] as $pageKey => $test) {
                 $output->writeln('Checking ' . $test['url'] . ' ...');
@@ -91,7 +97,7 @@ class KoalamonCommand extends Command
                 for ($i = 0; $i < $testCount; $i++) {
 
                     try {
-                        $harInfo = $harRetriever->getHarFile(new Uri($test['url']));
+                        $harInfo = $harRetriever->getHarFile(new Uri($test['url']), 2000);
                     } catch (PhantomJsRuntimeException $e) {
                         $output->writeln("<error>" . $e->getMessage() . "</error>");
                         continue;

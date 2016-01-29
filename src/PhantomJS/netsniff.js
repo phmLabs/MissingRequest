@@ -115,8 +115,6 @@ if (system.args.length === 1) {
 
     page.settings.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36';
 
-    page.clearMemoryCache();
-
     page.address = system.args[1];
     page.resources = [];
 

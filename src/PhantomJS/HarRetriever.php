@@ -9,12 +9,15 @@ class HarRetriever
     private $phantomJSExec = 'phantomjs';
     private $netsniffFile = 'netsniff.js';
     private $netSniffTempFile;
+    private $commandTimeoutInSeconds;
 
-    public function __construct($phantomJSExec = null)
+    public function __construct($phantomJSExec = null, $commandTimeoutInSeconds = 20)
     {
         if (!is_null($phantomJSExec)) {
             $this->phantomJSExec = $phantomJSExec;
         }
+
+        $this->commandTimeoutInSeconds = $commandTimeoutInSeconds;
 
         $this->netSniffTempFile = \tempnam('missing', 'netsniff_');
         copy(__DIR__ . '/' . $this->netsniffFile, $this->netSniffTempFile);
@@ -24,7 +27,14 @@ class HarRetriever
     {
         $command = $this->phantomJSExec . ' ' . $this->netSniffTempFile . ' ' . (string)$uri . " " . $timeout;
 
-        exec($command, $output, $exitCode);
+        $timeoutCommand = '';
+        if (`which timeout`) {
+            $timeoutCommand = "timeout " . $this->commandTimeoutInSeconds . " ";
+        } else if (`which gtimeout`) {
+            $timeoutCommand = "gtimeout " . $this->commandTimeoutInSeconds . " ";
+        }
+        
+        exec($timeoutCommand . $command, $output, $exitCode);
 
         $rawOutput = implode($output, "\n");
 

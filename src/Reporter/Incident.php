@@ -14,13 +14,17 @@ class Incident implements Reporter
 
     private $server = 'http://www.koalamon.com';
 
-    public function __construct($apiKey, $server = null)
+    private $system;
+
+    public function __construct($apiKey, $system, $server = null)
     {
         $this->apiKey = $apiKey;
 
         if ($server) {
             $this->server = $server;
         }
+
+        $this->system = $system;
     }
 
     public function addTestcase($url, $mandatoryUrl, $isFailure, $groupKey, $urlKey)
@@ -56,10 +60,9 @@ class Incident implements Reporter
                     }
                 }
             }
-            $parts = parse_url($url);
-            $system = $parts['host'];
+
             $identifier = 'MissingRequest_' . $url;
-            $this->doReport($system, $status, $message, $identifier);
+            $this->doReport($this->system, $status, $message, $identifier);
         }
 
         return 'Incident was sent';

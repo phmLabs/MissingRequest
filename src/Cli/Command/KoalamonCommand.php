@@ -21,7 +21,8 @@ class KoalamonCommand extends Command
             ->setDefinition(array(
                 new InputArgument('url', InputArgument::REQUIRED, 'The koalamon url'),
                 new InputOption('debugdir', 'd', InputOption::VALUE_OPTIONAL, 'directory where to put the html files in case of an error'),
-                new InputOption('koalamon_server', 'k', InputOption::VALUE_OPTIONAL, 'Koalamon Server')
+                new InputOption('koalamon_server', 'k', InputOption::VALUE_OPTIONAL, 'Koalamon Server'),
+                new InputOption('koalamon_system', 's', InputOption::VALUE_REQUIRED, 'Koalamon System Identifier')
             ))
             ->setDescription('Checks if requests are fired and sends the results to koalamon')
             ->setName('koalamon');
@@ -86,9 +87,9 @@ class KoalamonCommand extends Command
             $results = array();
 
             if ($input->getOption('koalamon_server')) {
-                $incidentReporter = new Incident($project['project']->api_key, $input->getOption('koalamon_server'));
+                $incidentReporter = new Incident($project['project']->api_key, $input->getOption('koalamon_system'), $input->getOption('koalamon_server'));
             } else {
-                $incidentReporter = new Incident($project['project']->api_key);
+                $incidentReporter = new Incident($project['project']->api_key, $input->getOption('koalamon_system'));
             }
 
             foreach ($project['urls'] as $pageKey => $test) {

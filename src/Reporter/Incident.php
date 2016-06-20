@@ -4,7 +4,6 @@ namespace whm\MissingRequest\Reporter;
 
 use GuzzleHttp\Client;
 use Koalamon\Client\Reporter\Event;
-use phmLabs\XUnitReport\Elements\Failure;
 
 class Incident implements Reporter
 {
@@ -27,6 +26,9 @@ class Incident implements Reporter
         $this->system = $system;
     }
 
+    /**
+     * @param boolean $isFailure
+     */
     public function addTestcase($url, $mandatoryUrl, $isFailure, $groupKey, $urlKey)
     {
         if ($isFailure) {
@@ -68,6 +70,11 @@ class Incident implements Reporter
         return 'Incident was sent';
     }
 
+    /**
+     * @param string $status
+     * @param string $message
+     * @param string $identifier
+     */
     private function doReport($system, $status, $message, $identifier)
     {
         $reporter = new \Koalamon\Client\Reporter\Reporter('', $this->apiKey, new Client(), $this->server);

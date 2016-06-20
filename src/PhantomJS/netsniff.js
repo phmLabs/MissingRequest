@@ -1,3 +1,5 @@
+/** global: phantom */
+
 if (!Date.prototype.toISOString) {
     Date.prototype.toISOString = function () {
         function pad(n) {

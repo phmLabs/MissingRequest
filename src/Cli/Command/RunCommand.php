@@ -53,7 +53,7 @@ class RunCommand extends Command
                 $reporter = new Incident();
                 break;
             default:
-                throw new \RuntimeException('Format ('.$input->getOption('format').') not found. ');
+                throw new \RuntimeException('Format (' . $input->getOption('format') . ') not found. ');
         }
 
         $urls = $this->getUrls($input->getArgument('requestfile'));
@@ -62,7 +62,7 @@ class RunCommand extends Command
             try {
                 $harInfo = $harRetriever->getHarFile(new Uri($test['url']));
             } catch (PhantomJsRuntimeException $e) {
-                $output->writeln("<error>".$e->getMessage()."</error>");
+                $output->writeln("<error>" . $e->getMessage() . "</error>");
                 exit($e->getExitCode());
             }
 
@@ -79,7 +79,7 @@ class RunCommand extends Command
                 foreach ($mandatoryRequests as $mandatoryRequest) {
                     $requestFound = false;
                     foreach ($currentRequests as $currentRequest) {
-                        if (preg_match('^'.$mandatoryRequest.'^', $currentRequest)) {
+                        if (preg_match('^' . $mandatoryRequest . '^', $currentRequest)) {
                             $requestFound = true;
                             break;
                         }
@@ -92,7 +92,7 @@ class RunCommand extends Command
             }
 
             if ($requestNotFound && $input->getOption('debugdir') != null) {
-                $fileName = $input->getOption('debugdir').DIRECTORY_SEPARATOR.$pageKey.'.html';
+                $fileName = $input->getOption('debugdir') . DIRECTORY_SEPARATOR . $pageKey . '.html';
                 file_put_contents($fileName, $htmlContent);
             }
         }

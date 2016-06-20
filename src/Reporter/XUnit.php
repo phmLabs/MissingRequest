@@ -32,7 +32,7 @@ class XUnit implements Reporter
             $testCase = new TestCase('MissingRequest', $url, 0);
             foreach ($missingUrls as $missingUrl) {
                 if ($missingUrl !== false) {
-                    $testCase->addFailure(new Failure('Missing request', 'Request was not found ('.$missingUrl.')'));
+                    $testCase->addFailure(new Failure('Missing request', 'Request was not found (' . $missingUrl . ')'));
                 }
             }
             $this->report->addTestCase($testCase);

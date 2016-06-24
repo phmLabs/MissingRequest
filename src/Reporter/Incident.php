@@ -11,7 +11,7 @@ class Incident implements Reporter
 
     private $apiKey;
 
-    private $server = 'http://www.koalamon.com';
+    private $server = 'https://webhook.koalamon.com';
 
     private $system;
 

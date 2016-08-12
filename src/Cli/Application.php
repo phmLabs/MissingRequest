@@ -16,6 +16,7 @@ use whm\MissingRequest\Cli\Command\CreateCommand;
 use whm\MissingRequest\Cli\Command\InfoCommand;
 use whm\MissingRequest\Cli\Command\JenkinsCommand;
 use whm\MissingRequest\Cli\Command\KoalamonCommand;
+use whm\MissingRequest\Cli\Command\KoalamonSystemCommand;
 use whm\MissingRequest\Cli\Command\RunCommand;
 
 class Application extends \Symfony\Component\Console\Application
@@ -60,5 +61,6 @@ class Application extends \Symfony\Component\Console\Application
         $this->add(new CreateCommand());
         $this->add(new JenkinsCommand());
         $this->add(new KoalamonCommand());
+        $this->add(new KoalamonSystemCommand());
     }
 }

@@ -53,6 +53,7 @@ class Incident implements Reporter
                                 $message .= '<ul>';
                                 $groupFound = true;
                             }
+
                             $message .= '<li>' . stripslashes($missingUrl) . '</li>';
                         }
                     }
@@ -78,6 +79,7 @@ class Incident implements Reporter
     private function doReport($system, $status, $message, $identifier)
     {
         $reporter = new \Koalamon\Client\Reporter\Reporter('', $this->apiKey, new Client(), $this->server);
+
         $event = new Event($identifier, $system, $status, 'missingRequest', $message);
 
         $reporter->sendEvent($event);

@@ -29,10 +29,10 @@ class Incident implements Reporter
     /**
      * @param boolean $isFailure
      */
-    public function addTestcase($url, $mandatoryUrl, $isFailure, $groupKey, $urlKey)
+    public function addTestcase($url, $mandatoryUrl, $isFailure, $groupKey, $urlKey, $message = '')
     {
         if ($isFailure) {
-            $this->tests[$url][$urlKey][$groupKey][] = $mandatoryUrl;
+            $this->tests[$url][$urlKey][$groupKey][] = ['url' => $mandatoryUrl, 'message' => $message];
         } else {
             $this->tests[$url][$urlKey][$groupKey][] = false;
         }
@@ -54,7 +54,7 @@ class Incident implements Reporter
                                 $groupFound = true;
                             }
 
-                            $message .= '<li>' . stripslashes($missingUrl) . '</li>';
+                            $message .= '<li>' . stripslashes($missingUrl['url']) . ' - ' . $missingUrl['message'] . '</li>';
                         }
                     }
                     if ($groupFound) {

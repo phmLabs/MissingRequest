@@ -4,6 +4,7 @@ namespace whm\MissingRequest\Cli\Command;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
+use Koalamon\Client\Reporter\Reporter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -73,20 +74,31 @@ class KoalamonSystemCommand extends Command
             foreach ($collections as $collection) {
 
                 foreach ($collection['requests'] as $mandatoryRequest) {
-                    $requestFound = false;
-
                     $name = $mandatoryRequest['name'];
                     $pattern = $mandatoryRequest['pattern'];
+                    $count = $mandatoryRequest['count'];
+
+                    $numFound = 0;
 
                     foreach ($actualRequests as $actualRequest) {
                         if (preg_match('^' . $pattern . '^', $actualRequest)) {
-                            $requestFound = true;
+                            $numFound++;
                             break;
                         }
                     }
+
+                    if ($numFound == $count) {
+                        $status = Reporter::RESPONSE_STATUS_SUCCESS;
+                        $message = '';
+                    } else {
+                        $status = Reporter::RESPONSE_STATUS_FAILURE;
+                        $message = 'Requst was found ' . $numFound . ' times. Expected was ' . $count . ' times.';
+                    }
+
                     $results[$i][] = array("url" => $url,
                         'mandatoryRequest' => $pattern . " (" . $name . ")",
-                        'requestFound' => $requestFound,
+                        'status' => $status,
+                        'massage' => $message,
                         'groupName' => $collection['name'],
                         'pageKey' => $name,
                         'htmlContent' => $htmlContent,
@@ -104,13 +116,13 @@ class KoalamonSystemCommand extends Command
 
             $requestFound = false;
             for ($i = 0; $i < self::PROBE_COUNT; $i++) {
-                if ($results[$i][$key]['requestFound']) {
+                if ($results[$i][$key]['status'] == Reporter::RESPONSE_STATUS_SUCCESS) {
                     $requestFound = true;
                     break;
                 };
             }
 
-            $incidentReporter->addTestcase($result["url"], $result['mandatoryRequest'], !$requestFound, $result['groupName'], $result['pageKey']);
+            $incidentReporter->addTestcase($result["url"], $result['mandatoryRequest'], !$requestFound, $result['groupName'], $result['pageKey'], $result['massage']);
 
             if (!$requestFound && $debugDir != null) {
                 $htmlFileName = $debugDir . DIRECTORY_SEPARATOR . $result['pageKey'] . '.html';

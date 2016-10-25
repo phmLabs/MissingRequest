@@ -32,7 +32,7 @@ class KoalamonSystemCommand extends Command
                 new InputOption('koalamon_system_collections', 'c', InputOption::VALUE_REQUIRED, 'Koalamon System Identifier'),
                 new InputOption('koalamon_project_api_key', 'p', InputOption::VALUE_REQUIRED, 'Koalamon System Identifier'),
                 new InputOption('koalamon_server', 's', InputOption::VALUE_OPTIONAL, 'Koalamon System Identifier'),
-                new InputOption('koalamon_system_id', 'c', InputOption::VALUE_REQUIRED, 'Koalamon System ID'),
+                new InputOption('koalamon_system_id', 'z', InputOption::VALUE_REQUIRED, 'Koalamon System ID'),
             ))
             ->setDescription('Checks if requests are fired and sends the results to koalamon')
             ->setName('koalamonsystem');

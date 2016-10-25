@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nils.langner
- * Date: 03.09.15
- * Time: 09:21.
- */
+
 namespace whm\MissingRequest\Cli;
 
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -60,7 +55,6 @@ class Application extends \Symfony\Component\Console\Application
         $this->add(new InfoCommand());
         $this->add(new CreateCommand());
         $this->add(new JenkinsCommand());
-        $this->add(new KoalamonCommand());
         $this->add(new KoalamonSystemCommand());
     }
 }

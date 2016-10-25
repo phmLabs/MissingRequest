@@ -32,6 +32,7 @@ class KoalamonSystemCommand extends Command
                 new InputOption('koalamon_system_collections', 'c', InputOption::VALUE_REQUIRED, 'Koalamon System Identifier'),
                 new InputOption('koalamon_project_api_key', 'p', InputOption::VALUE_REQUIRED, 'Koalamon System Identifier'),
                 new InputOption('koalamon_server', 's', InputOption::VALUE_OPTIONAL, 'Koalamon System Identifier'),
+                new InputOption('koalamon_system_id', 'c', InputOption::VALUE_REQUIRED, 'Koalamon System ID'),
             ))
             ->setDescription('Checks if requests are fired and sends the results to koalamon')
             ->setName('koalamonsystem');
@@ -50,9 +51,9 @@ class KoalamonSystemCommand extends Command
         $collections = json_decode($input->getOption('koalamon_system_collections'), true);
 
         if ($input->getOption('koalamon_server')) {
-            $incidentReporter = new Incident($projectApiKey, $input->getOption('koalamon_system_identifier'), $input->getOption('koalamon_server'));
+            $incidentReporter = new Incident($projectApiKey, $input->getOption('koalamon_system_identifier'), $input->getOption('koalamon_system_id'), $input->getOption('koalamon_server'));
         } else {
-            $incidentReporter = new Incident($projectApiKey, $input->getOption('koalamon_system_identifier'));
+            $incidentReporter = new Incident($projectApiKey, $input->getOption('koalamon_system_identifier', $input->getOption('koalamon_system_id')));
         }
 
         $output->writeln('Checking ' . $url . ' ...');
@@ -83,7 +84,6 @@ class KoalamonSystemCommand extends Command
                     foreach ($actualRequests as $actualRequest) {
                         if (preg_match('^' . $pattern . '^', $actualRequest)) {
                             $numFound++;
-                            break;
                         }
                     }
 

@@ -15,7 +15,9 @@ class Incident implements Reporter
 
     private $system;
 
-    public function __construct($apiKey, $system, $server = null)
+    private $systemId;
+
+    public function __construct($apiKey, $system, $systemId, $server = null)
     {
         $this->apiKey = $apiKey;
 
@@ -23,6 +25,7 @@ class Incident implements Reporter
             $this->server = $server;
         }
 
+        $this->systemId = $systemId;
         $this->system = $system;
     }
 
@@ -65,7 +68,7 @@ class Incident implements Reporter
             }
 
             $identifier = 'MissingRequest_' . $url;
-            $this->doReport($this->system, $status, $message, $identifier);
+            $this->doReport($status, $message, $identifier);
         }
 
         return 'Incident was sent';
@@ -76,11 +79,11 @@ class Incident implements Reporter
      * @param string $message
      * @param string $identifier
      */
-    private function doReport($system, $status, $message, $identifier)
+    private function doReport($status, $message, $identifier)
     {
         $reporter = new \Koalamon\Client\Reporter\Reporter('', $this->apiKey, new Client(), $this->server);
 
-        $event = new Event($identifier, $system, $status, 'missingRequest', $message);
+        $event = new Event($identifier, $this->system, $status, 'missingRequest', $message, '', '', $this->systemId);
 
         $reporter->sendEvent($event);
     }

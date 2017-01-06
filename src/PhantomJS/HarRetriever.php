@@ -2,7 +2,7 @@
 
 namespace whm\MissingRequest\PhantomJS;
 
-use Psr\Http\Message\UriInterface;
+use whm\Html\Uri;
 
 class HarRetriever
 {
@@ -23,18 +23,11 @@ class HarRetriever
         copy(__DIR__ . '/' . $this->netsniffFile, $this->netSniffTempFile);
     }
 
-    public function getHarFile(UriInterface $uri, $timeout = 1000)
+    public function getHarFile(Uri $uri, $timeout = 1000)
     {
-        $command = $this->phantomJSExec . ' ' . $this->netSniffTempFile . ' ' . (string)$uri . " " . $timeout;
+        $command = $this->phantomJSExec . ' ' . $this->netSniffTempFile . ' ' . (string)$uri . " " . $timeout . " '" . $uri->getCookieString() . "'";
 
-        $timeoutCommand = '';
-        if (`which timeout`) {
-            $timeoutCommand = "timeout " . $this->commandTimeoutInSeconds . " ";
-        } else if (`which gtimeout`) {
-            $timeoutCommand = "gtimeout " . $this->commandTimeoutInSeconds . " ";
-        }
-        
-        exec($timeoutCommand . $command, $output, $exitCode);
+        exec($command, $output, $exitCode);
 
         $rawOutput = implode($output, "\n");
 

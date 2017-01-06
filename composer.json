@@ -7,7 +7,9 @@
     "symfony/yaml": "~2.2",
     "guzzlehttp/guzzle": "~6.0",
     "phmlabs/xunitreport": "~1.0.0",
-    "koalamon/koalamonclient": "dev-master"
+    "phmlabs/html": "~2.1",
+    "koalamon/koalamonclient": "dev-master",
+    "koalamon/cookiemakerhelper": "dev-master"
   },
   "autoload": {
     "psr-4": {

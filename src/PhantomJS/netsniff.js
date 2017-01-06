@@ -108,11 +108,10 @@ if (system.args.length === 1) {
     phantom.exit(1);
 } else {
 
-    var waitTime;
-    if(system.args[2]) {
-        waitTime = system.args[2];
-    }else{
-        waitTime = 1000;
+    var waitTime = system.args[2];
+
+    if (system.args[3]) {
+        page.customHeaders = {'cookie': system.args[3]};
     }
 
     page.settings.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36';
@@ -157,7 +156,6 @@ if (system.args.length === 1) {
             console.log('FAIL to load the address');
             phantom.exit(1);
         } else {
-
             window.setTimeout(function () {
                 page.endTime = new Date();
                 page.title = page.evaluate(function () {

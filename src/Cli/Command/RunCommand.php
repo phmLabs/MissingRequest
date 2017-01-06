@@ -24,6 +24,7 @@ class RunCommand extends Command
                 new InputOption('outputfile', 'o', InputOption::VALUE_OPTIONAL, 'filename to store result', null),
                 new InputOption('format', 'f', InputOption::VALUE_OPTIONAL, 'output format (default: xunit | available: xunit)', 'xunit'),
                 new InputOption('debugdir', 'd', InputOption::VALUE_OPTIONAL, 'directory where to put the html files in case of an error'),
+                new InputOption('login', 'l', InputOption::VALUE_REQUIRED, 'Login Credentials for CookieMake'),
             ))
             ->setDescription('Checks if requests are fired')
             ->setName('run');

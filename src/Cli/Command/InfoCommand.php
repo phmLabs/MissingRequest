@@ -2,11 +2,11 @@
 
 namespace whm\MissingRequest\Cli\Command;
 
-use GuzzleHttp\Psr7\Uri;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use whm\Html\Uri;
 use whm\MissingRequest\PhantomJS\HarRetriever;
 use whm\MissingRequest\PhantomJS\PhantomJsRuntimeException;
 

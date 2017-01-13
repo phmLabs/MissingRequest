@@ -44,9 +44,9 @@ class Incident implements Reporter
     public function getReport()
     {
         foreach ($this->tests as $url => $urlKeys) {
+            $message = '';
+            $status = 'success';
             foreach ($urlKeys as $urlKey => $groups) {
-                $message = '';
-                $status = 'success';
                 $groupFound = false;
                 foreach ($groups as $groupName => $missingUrls) {
                     foreach ($missingUrls as $missingUrl) {
@@ -65,9 +65,9 @@ class Incident implements Reporter
                     $message .= '</ul>';
                     $status = 'failure';
                 }
-                $identifier = 'MissingRequest_' . $url;
-                $this->doReport($status, $message, $identifier);
             }
+            $identifier = 'MissingRequest_' . $url;
+            $this->doReport($status, $message, $identifier);
         }
 
         return 'Incident was sent';

@@ -15,7 +15,6 @@ use whm\MissingRequest\PhantomJS\PhantomJsRuntimeException;
 use whm\MissingRequest\Reporter\Incident;
 
 // http://status.leankoala.com/p/integrations/missingrequest/rest/config?integration_key=b312997e-122a-45ac-b25b-f1f2fd8effe4
-
 // koalamonsystem 'https://www.thewebhatesme.com/wp-admin/' -p 416C70E7-B3B5-4CF0-8B98-16C57843E40F -s https://monitor.leankoala.com/webhook/ -c '[{"name":"Google Analytics","requests":[{"name":"JavaScript Request","pattern":"http:\/\/www.google.de\/analytics.js","count":1}]}]' -i 101 -l '{"name":"User: Nils (Capital N)","action":"https:\/\/www.thewebhatesme.com\/wp-login.php","url":"https:\/\/www.thewebhatesme.com\/wp-login.php","fields":{"log":"Nils","pwd":"langner"}}'
 
 class KoalamonSystemCommand extends Command
@@ -116,7 +115,6 @@ class KoalamonSystemCommand extends Command
                         'harContent' => json_encode((array)$harInfo['harFile']));
                 }
             }
-
         }
         $this->processResult($results, $incidentReporter, $input->getOption('debugdir'));
     }

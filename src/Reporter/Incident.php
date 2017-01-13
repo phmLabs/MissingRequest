@@ -35,9 +35,9 @@ class Incident implements Reporter
     public function addTestcase($url, $mandatoryUrl, $isFailure, $groupKey, $urlKey, $message = '')
     {
         if ($isFailure) {
-            $this->tests[$url][$urlKey][$groupKey][] = ['url' => $mandatoryUrl, 'message' => $message];
+            $this->tests[$url][$groupKey][$urlKey][] = ['url' => $mandatoryUrl, 'message' => $message];
         } else {
-            $this->tests[$url][$urlKey][$groupKey][] = false;
+            $this->tests[$url][$groupKey][$urlKey][] = false;
         }
     }
 
@@ -47,12 +47,12 @@ class Incident implements Reporter
             foreach ($urlKeys as $urlKey => $groups) {
                 $message = '';
                 $status = 'success';
+                $groupFound = false;
                 foreach ($groups as $groupName => $missingUrls) {
-                    $groupFound = false;
                     foreach ($missingUrls as $missingUrl) {
                         if ($missingUrl !== false) {
                             if (!$groupFound) {
-                                $message .= 'Requests for <strong>' . $groupName . '</strong> on ' . $url . ' were not found.';
+                                $message .= 'Requests for <strong>' . $urlKey . '</strong> on ' . $url . ' were not found.';
                                 $message .= '<ul>';
                                 $groupFound = true;
                             }
@@ -60,15 +60,14 @@ class Incident implements Reporter
                             $message .= '<li>' . stripslashes($missingUrl['url']) . ' - ' . $missingUrl['message'] . '</li>';
                         }
                     }
-                    if ($groupFound) {
-                        $message .= '</ul>';
-                        $status = 'failure';
-                    }
                 }
+                if ($groupFound) {
+                    $message .= '</ul>';
+                    $status = 'failure';
+                }
+                $identifier = 'MissingRequest_' . $url;
+                $this->doReport($status, $message, $identifier);
             }
-
-            $identifier = 'MissingRequest_' . $url;
-            $this->doReport($status, $message, $identifier);
         }
 
         return 'Incident was sent';
@@ -82,9 +81,7 @@ class Incident implements Reporter
     private function doReport($status, $message, $identifier)
     {
         $reporter = new \Koalamon\Client\Reporter\Reporter('', $this->apiKey, new Client(), $this->server);
-
         $event = new Event($identifier, $this->system, $status, 'missingRequest', $message, '', '', $this->systemId);
-
         $reporter->sendEvent($event);
     }
 }

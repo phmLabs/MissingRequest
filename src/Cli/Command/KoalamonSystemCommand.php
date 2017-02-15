@@ -37,6 +37,7 @@ class KoalamonSystemCommand extends Command
                 new InputOption('login', 'l', InputOption::VALUE_OPTIONAL, 'Login credentials'),
                 new InputOption('webdriverhost', 'w', InputOption::VALUE_OPTIONAL, 'Webdriver host', 'localhost'),
                 new InputOption('webdriverport', 'x', InputOption::VALUE_OPTIONAL, 'Webdriver port', 4444),
+                new InputOption('webdriversleep', 't', InputOption::VALUE_OPTIONAL, 'Webdriver sleep time', 5),
             ))
             ->setDescription('Checks if requests are fired and sends the results to koalamon')
             ->setName('koalamonsystem');
@@ -69,7 +70,7 @@ class KoalamonSystemCommand extends Command
             $uri->addCookies($cookies);
         }
 
-        $client = new HttpClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'));
+        $client = new HttpClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'), $input->getOption('webdriversleep'));
 
         $results = array();
 

@@ -19,6 +19,7 @@ class InfoCommand extends Command
                 new InputArgument('url', InputArgument::REQUIRED, 'url to be scanned'),
                 new InputOption('webdriverhost', 'w', InputOption::VALUE_OPTIONAL, 'Webdriver host', 'localhost'),
                 new InputOption('webdriverport', 'x', InputOption::VALUE_OPTIONAL, 'Webdriver port', 4444),
+                new InputOption('webdriversleep', 't', InputOption::VALUE_OPTIONAL, 'Webdriver sleep', 1),
             ))
             ->setDescription('Shows all requests')
             ->setName('info');

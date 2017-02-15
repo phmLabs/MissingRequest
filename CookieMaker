@@ -1,1 +1,1 @@
-/usr/bin/php /Users/nils.langner/PhpstormProjects/CookieMaker/bin/CookieMaker.php "$@"
+php /Users/nils.langner/Projects/CookieMaker/bin/CookieMaker.php "$@"

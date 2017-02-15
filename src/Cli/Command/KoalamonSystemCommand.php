@@ -2,16 +2,16 @@
 
 namespace whm\MissingRequest\Cli\Command;
 
+use GuzzleHttp\Psr7\Request;
 use Koalamon\Client\Reporter\Reporter;
 use Koalamon\CookieMakerHelper\CookieMaker;
+use phm\HttpWebdriverClient\Http\HttpClient;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use whm\Html\Uri;
-use whm\MissingRequest\PhantomJS\HarRetriever;
-use whm\MissingRequest\PhantomJS\PhantomJsRuntimeException;
 use whm\MissingRequest\Reporter\Incident;
 
 // http://status.leankoala.com/p/integrations/missingrequest/rest/config?integration_key=b312997e-122a-45ac-b25b-f1f2fd8effe4
@@ -19,7 +19,7 @@ use whm\MissingRequest\Reporter\Incident;
 
 class KoalamonSystemCommand extends Command
 {
-    const PROBE_COUNT = 2;
+    const PROBE_COUNT = 1;
     const PHANTOM_TIMEOUT = 2000;
 
     protected function configure()
@@ -35,6 +35,8 @@ class KoalamonSystemCommand extends Command
                 new InputOption('koalamon_server', 's', InputOption::VALUE_OPTIONAL, 'Koalamon System Identifier'),
                 new InputOption('koalamon_system_id', 'z', InputOption::VALUE_REQUIRED, 'Koalamon System ID'),
                 new InputOption('login', 'l', InputOption::VALUE_OPTIONAL, 'Login credentials'),
+                new InputOption('webdriverhost', 'w', InputOption::VALUE_OPTIONAL, 'Webdriver host', 'localhost'),
+                new InputOption('webdriverport', 'x', InputOption::VALUE_OPTIONAL, 'Webdriver port', 4444),
             ))
             ->setDescription('Checks if requests are fired and sends the results to koalamon')
             ->setName('koalamonsystem');
@@ -46,16 +48,15 @@ class KoalamonSystemCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $harRetriever = new HarRetriever();
-
         $projectApiKey = $input->getOption('koalamon_project_api_key');
         $url = $input->getArgument('url');
+
         $collections = json_decode($input->getOption('koalamon_system_collections'), true);
 
         if ($input->getOption('koalamon_server')) {
             $incidentReporter = new Incident($projectApiKey, $input->getOption('koalamon_system_identifier'), $input->getOption('koalamon_system_id'), $input->getOption('koalamon_server'));
         } else {
-            $incidentReporter = new Incident($projectApiKey, $input->getOption('koalamon_system_identifier', $input->getOption('koalamon_system_id')));
+            $incidentReporter = new Incident($projectApiKey, $input->getOption('koalamon_system_identifier'), $input->getOption('koalamon_system_id'));
         }
 
         $output->writeln('Checking ' . $url . ' ...');
@@ -68,34 +69,28 @@ class KoalamonSystemCommand extends Command
             $uri->addCookies($cookies);
         }
 
+        $client = new HttpClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'));
+
+        $results = array();
+
         for ($i = 0; $i < self::PROBE_COUNT; $i++) {
 
             try {
-                $harInfo = $harRetriever->getHarFile($uri, self::PHANTOM_TIMEOUT);
-            } catch (PhantomJsRuntimeException $e) {
+                $response = $client->sendRequest(new Request('GET', $uri));
+            } catch (\Exception $e) {
                 $output->writeln("<error>" . $e->getMessage() . "</error>");
                 exit(1);
             }
 
-            $htmlContent = $harInfo['html'];
-            $entries = $harInfo['harFile']->getEntries();
-
-            $actualRequests = array_keys($entries);
-
             foreach ($collections as $collection) {
 
                 foreach ($collection['requests'] as $mandatoryRequest) {
+
                     $name = $mandatoryRequest['name'];
                     $pattern = $mandatoryRequest['pattern'];
                     $count = $mandatoryRequest['count'];
 
-                    $numFound = 0;
-
-                    foreach ($actualRequests as $actualRequest) {
-                        if (preg_match('^' . $pattern . '^', $actualRequest)) {
-                            $numFound++;
-                        }
-                    }
+                    $numFound = $response->getRequestCount($pattern);
 
                     if ($numFound == $count) {
                         $status = Reporter::RESPONSE_STATUS_SUCCESS;
@@ -111,11 +106,12 @@ class KoalamonSystemCommand extends Command
                         'massage' => $message,
                         'groupName' => $collection['name'],
                         'pageKey' => $name,
-                        'htmlContent' => $htmlContent,
-                        'harContent' => json_encode((array)$harInfo['harFile']));
+                        'htmlContent' => $response->getBody(),
+                    );
                 }
             }
         }
+
         $this->processResult($results, $incidentReporter, $input->getOption('debugdir'));
     }
 

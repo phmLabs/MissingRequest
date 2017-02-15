@@ -8,6 +8,7 @@
     "guzzlehttp/guzzle": "~6.0",
     "phmlabs/xunitreport": "~1.0.0",
     "phmlabs/html": "~2.1",
+    "phmLabs/httpwebdriveradapter": "dev-master",
     "koalamon/koalamonclient": "dev-master",
     "koalamon/cookiemakerhelper": "dev-master"
   },

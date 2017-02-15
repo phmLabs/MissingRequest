@@ -2,13 +2,13 @@
 
 namespace whm\MissingRequest\Cli\Command;
 
+use GuzzleHttp\Psr7\Request;
+use phm\HttpWebdriverClient\Http\HttpClient;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use whm\Html\Uri;
-use whm\MissingRequest\PhantomJS\HarRetriever;
-use whm\MissingRequest\PhantomJS\PhantomJsRuntimeException;
 
 class InfoCommand extends Command
 {
@@ -17,7 +17,8 @@ class InfoCommand extends Command
         $this
             ->setDefinition(array(
                 new InputArgument('url', InputArgument::REQUIRED, 'url to be scanned'),
-
+                new InputOption('webdriverhost', 'w', InputOption::VALUE_OPTIONAL, 'Webdriver host', 'localhost'),
+                new InputOption('webdriverport', 'x', InputOption::VALUE_OPTIONAL, 'Webdriver port', 4444),
             ))
             ->setDescription('Shows all requests')
             ->setName('info');
@@ -29,20 +30,20 @@ class InfoCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $harRetriever = new HarRetriever();
+        $client = new HttpClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'));
         try {
-            $harFile = $harRetriever->getHarFile(new Uri($input->getArgument('url')));
-        } catch (PhantomJsRuntimeException $e) {
+            $response = $client->sendRequest(new Request('GET', $input->getArgument('url')));
+        } catch (\Exception $e) {
             $output->writeln("<error>" . $e->getMessage() . "</error>");
             exit($e->getExitCode());
         }
 
-        $urls = array_keys($harFile['harFile']->getEntries());
+        $urls = $response->getRequests();
 
         $output->writeln("\n<info>Scanning " . $input->getArgument('url') . "</info>\n");
 
         foreach ($urls as $url) {
-            $output->writeln(' - ' . $url);
+            $output->writeln(' - ' . $url['name']);
         }
 
         $output->writeln("\n<info>   " . count($urls) . " requests found</info>\n");

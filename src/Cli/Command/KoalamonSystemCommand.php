@@ -19,7 +19,7 @@ use whm\MissingRequest\Reporter\Incident;
 
 class KoalamonSystemCommand extends Command
 {
-    const PROBE_COUNT = 1;
+    const PROBE_COUNT = 2;
     const PHANTOM_TIMEOUT = 2000;
 
     protected function configure()
@@ -73,7 +73,15 @@ class KoalamonSystemCommand extends Command
 
         $results = array();
 
+        $failure = false;
+
         for ($i = 0; $i < self::PROBE_COUNT; $i++) {
+
+            // only run n-th time of elements were not found
+            if (!$failure) {
+                $results[$i] = $results[$i - 1];
+                continue;
+            }
 
             try {
                 $response = $client->sendRequest(new Request('GET', $uri));
@@ -98,9 +106,11 @@ class KoalamonSystemCommand extends Command
                     } else {
                         $status = Reporter::RESPONSE_STATUS_FAILURE;
                         $message = 'Request was found ' . $numFound . ' times. Expected was ' . $count . ' times.';
+                        $failure = true;
                     }
 
-                    $results[$i][] = array("url" => $url,
+                    $results[$i][] = array(
+                        "url" => $url,
                         'mandatoryRequest' => $pattern . " (" . $name . ")",
                         'status' => $status,
                         'massage' => $message,

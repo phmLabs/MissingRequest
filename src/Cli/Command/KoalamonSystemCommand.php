@@ -78,7 +78,7 @@ class KoalamonSystemCommand extends Command
         for ($i = 0; $i < self::PROBE_COUNT; $i++) {
 
             // only run n-th time of elements were not found
-            if (!$failure) {
+            if (!$failure && $i != 0) {
                 $results[$i] = $results[$i - 1];
                 continue;
             }

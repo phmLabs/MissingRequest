@@ -45,11 +45,10 @@ class Incident implements Reporter
     {
         foreach ($this->tests as $url => $urlKeys) {
             $message = '';
-            $groups = array();
             $status = 'success';
+
             foreach ($urlKeys as $groupIdentifier => $groups) {
                 $groupFound = false;
-                $groups[] = $groupIdentifier;
                 foreach ($groups as $groupName => $missingUrls) {
                     foreach ($missingUrls as $missingUrl) {
                         if ($missingUrl !== false) {
@@ -68,8 +67,9 @@ class Incident implements Reporter
                     $status = 'failure';
                 }
             }
+
             if ($status == 'success') {
-                $message = 'All mandatory requests for ' . implode(', ' . $groups) . ' found.';
+                $message = 'All mandatary requests for ' . implode(', ', array_keys($urlKeys)) . ' were found.';
             }
 
             $identifier = 'MissingRequest_' . $url;

@@ -45,14 +45,16 @@ class Incident implements Reporter
     {
         foreach ($this->tests as $url => $urlKeys) {
             $message = '';
+            $groups = array();
             $status = 'success';
-            foreach ($urlKeys as $urlKey => $groups) {
+            foreach ($urlKeys as $groupIdentifier => $groups) {
                 $groupFound = false;
+                $groups[] = $groupIdentifier;
                 foreach ($groups as $groupName => $missingUrls) {
                     foreach ($missingUrls as $missingUrl) {
                         if ($missingUrl !== false) {
                             if (!$groupFound) {
-                                $message .= 'Requests for <strong>' . $urlKey . '</strong> on ' . $url . ' were not found.';
+                                $message .= 'Requests for <strong>' . $groupIdentifier . '</strong> on ' . $url . ' were not found.';
                                 $message .= '<ul>';
                                 $groupFound = true;
                             }
@@ -66,6 +68,10 @@ class Incident implements Reporter
                     $status = 'failure';
                 }
             }
+            if ($status == 'success') {
+                $message = 'All mandatory requests for ' . implode(', ' . $groups) . ' found.';
+            }
+
             $identifier = 'MissingRequest_' . $url;
             $this->doReport($status, $message, $identifier);
         }

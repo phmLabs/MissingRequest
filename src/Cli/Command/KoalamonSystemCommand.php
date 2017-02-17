@@ -98,15 +98,33 @@ class KoalamonSystemCommand extends Command
                     $name = $mandatoryRequest['name'];
                     $pattern = $mandatoryRequest['pattern'];
                     $count = $mandatoryRequest['count'];
+                    $relation = $mandatoryRequest['relation'];
 
                     $numFound = $response->getRequestCount($pattern);
 
-                    if ($numFound == $count) {
+                    switch ($relation) {
+                        case 'equals':
+                            $result = $numFound == $count;
+                            $message = 'Request was found ' . $numFound . ' times. Expected was ' . $count . ' times.';
+                            break;
+                        case  'less':
+                            $result = $numFound < $count;
+                            $message = 'Request was found ' . $numFound . ' times. Expected was less than ' . $count . ' times.';
+                            break;
+                        case 'greater':
+                            $result = $numFound > $count;
+                            $message = 'Request was found ' . $numFound . ' times. Expected was more than ' . $count . ' times.';
+                            break;
+                        default:
+                            $result = false;
+                            $message = 'The relation (' . $relation . ') was not found.';
+                    }
+
+                    if ($result) {
                         $status = Reporter::RESPONSE_STATUS_SUCCESS;
                         $message = '';
                     } else {
                         $status = Reporter::RESPONSE_STATUS_FAILURE;
-                        $message = 'Request was found ' . $numFound . ' times. Expected was ' . $count . ' times.';
                         $failure = true;
                     }
 

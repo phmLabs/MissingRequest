@@ -69,7 +69,7 @@ class Incident implements Reporter
             }
 
             if ($status == 'success') {
-                $message = 'All mandatary requests for ' . implode(', ', array_keys($urlKeys)) . ' were found.';
+                $message = 'All mandatory requests for ' . implode(', ', array_keys($urlKeys)) . ' were found.';
             }
 
             $identifier = 'MissingRequest_' . $url;

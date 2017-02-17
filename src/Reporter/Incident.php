@@ -72,8 +72,7 @@ class Incident implements Reporter
                 $message = 'All mandatory requests for ' . implode(', ', array_keys($urlKeys)) . ' were found.';
             }
 
-            $identifier = 'MissingRequest_' . $url;
-            $this->doReport($status, $message, $identifier);
+            $this->doReport($status, $message);
         }
 
         return 'Incident was sent';
@@ -84,8 +83,9 @@ class Incident implements Reporter
      * @param string $message
      * @param string $identifier
      */
-    private function doReport($status, $message, $identifier)
+    private function doReport($status, $message)
     {
+        $identifier = 'MissingRequest_' . $this->systemId;
         $reporter = new \Koalamon\Client\Reporter\Reporter('', $this->apiKey, new Client(), $this->server);
         $event = new Event($identifier, $this->system, $status, 'missingRequest', $message, '', '', $this->systemId);
         $reporter->sendEvent($event);

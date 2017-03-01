@@ -69,7 +69,7 @@ class Leankoala implements Reporter
             }
 
             if ($status == 'success') {
-                $message = 'All mandatory requests for ' . $missingUrl['url'] . ' were found.';
+                $message = 'All mandatory requests for ' . $url . ' were found.';
             }
 
             $this->doReport($status, $message);

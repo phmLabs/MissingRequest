@@ -87,7 +87,7 @@ class Leankoala implements Reporter
     {
         $identifier = 'MissingRequest2_' . $this->systemId;
         $reporter = new \Koalamon\Client\Reporter\Reporter('', $this->apiKey, new Client(), $this->server);
-        $event = new Event($identifier, $this->system, $status, 'missingRequest', $message, '', '', $this->systemId);
+        $event = new Event($identifier, $this->system, $status, 'missingRequest2', $message, '', '', $this->systemId);
         $reporter->sendEvent($event);
     }
 }

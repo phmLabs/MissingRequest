@@ -47,26 +47,19 @@ class Leankoala implements Reporter
             $message = '';
             $status = 'success';
 
+            $message .= 'Some mandatory requests on ' . $url . ' were not found.<ul>';
+
             foreach ($urlKeys as $groupIdentifier => $groups) {
-                $groupFound = false;
                 foreach ($groups as $groupName => $missingUrls) {
                     foreach ($missingUrls as $missingUrl) {
                         if ($missingUrl !== false) {
-                            if (!$groupFound) {
-                                $message .= 'Some mandatory requests on ' . $url . ' were not found.';
-                                $message .= '<ul>';
-                                $groupFound = true;
-                            }
-
-                            $message .= '<li>' . stripslashes($missingUrl['url']) . ' - ' . $missingUrl['message'] . '</li>';
+                            $message .= '<li>' . stripslashes($missingUrl['url']) . ': ' . $missingUrl['message'] . '</li>';
+                            $status = 'failure';
                         }
                     }
                 }
-                if ($groupFound) {
-                    $message .= '</ul>';
-                    $status = 'failure';
-                }
             }
+            $message .= '</ul>';
 
             if ($status == 'success') {
                 $message = 'All mandatory requests for ' . $url . ' were found.';

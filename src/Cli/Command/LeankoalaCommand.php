@@ -2,17 +2,20 @@
 
 namespace whm\MissingRequest\Cli\Command;
 
+use Cache\Adapter\Filesystem\FilesystemCachePool;
 use GuzzleHttp\Psr7\Request;
 use Koalamon\Client\Reporter\Reporter;
 use Koalamon\CookieMakerHelper\CookieMaker;
-use phm\HttpWebdriverClient\Http\HttpClient;
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Filesystem;
+use phm\HttpWebdriverClient\Http\ChromeClient;
+use phm\HttpWebdriverClient\Http\Decorator\CacheDecorator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use whm\Html\Uri;
-use whm\MissingRequest\Reporter\Incident;
 use whm\MissingRequest\Reporter\Leankoala;
 
 // http://status.leankoala.com/p/integrations/missingrequest/rest/config?integration_key=b312997e-122a-45ac-b25b-f1f2fd8effe4
@@ -50,6 +53,18 @@ class LeankoalaCommand extends Command
             ->setName('leankoala');
     }
 
+    private function getClient($host, $port, $sleep)
+    {
+        $chromeClient = new ChromeClient($host, $port, $sleep);
+
+        $filesystemAdapter = new Local('/tmp/cached/missing/');
+        $filesystem = new Filesystem($filesystemAdapter);
+        $cachePoolInterface = new FilesystemCachePool($filesystem);
+        $client = new CacheDecorator($chromeClient, $cachePoolInterface);
+
+        return $client;
+    }
+
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
@@ -71,13 +86,13 @@ class LeankoalaCommand extends Command
 
         $output->writeln('Checking ' . (string)$uri . ' ...');
 
-        if ($input->getOption('login')) {
+        if ($input->getOption('login') && $input->getOption('login') != "[]") {
             $cookies = new CookieMaker();
             $cookies = $cookies->getCookies($input->getOption('login'));
             $uri->addCookies($cookies);
         }
 
-        $client = new HttpClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'), $input->getOption('webdriversleep'));
+        $client = $this->getClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'), $input->getOption('webdriversleep'));
 
         $results = array();
         $failure = false;

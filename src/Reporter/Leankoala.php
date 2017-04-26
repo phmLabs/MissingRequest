@@ -32,10 +32,10 @@ class Leankoala implements Reporter
     /**
      * @param boolean $isFailure
      */
-    public function addTestcase($url, $mandatoryUrl, $isFailure, $groupKey, $urlKey, $message = '')
+    public function addTestcase($url, $mandatoryUrl, $isFailure, $groupKey, $urlKey, $message = '', $requests = [])
     {
         if ($isFailure) {
-            $this->tests[$url][$groupKey][$urlKey][] = ['url' => $mandatoryUrl, 'message' => $message];
+            $this->tests[$url][$groupKey][$urlKey][] = ['url' => $mandatoryUrl, 'message' => $message, 'requests' => $requests];
         } else {
             $this->tests[$url][$groupKey][$urlKey][] = false;
         }
@@ -48,11 +48,13 @@ class Leankoala implements Reporter
             $status = 'success';
 
             $message .= 'Some mandatory requests on ' . $url . ' were not found.<ul>';
+            $requests = [];
 
             foreach ($urlKeys as $groupIdentifier => $groups) {
                 foreach ($groups as $groupName => $missingUrls) {
                     foreach ($missingUrls as $missingUrl) {
                         if ($missingUrl !== false) {
+                            $requests = $missingUrl['requests'];
                             $message .= '<li>' . stripslashes($missingUrl['url']) . ': ' . $missingUrl['message'] . '</li>';
                             $status = 'failure';
                         }
@@ -65,7 +67,7 @@ class Leankoala implements Reporter
                 $message = 'All mandatory requests for ' . $url . ' were found.';
             }
 
-            $this->doReport($status, $message);
+            $this->doReport($status, $message, $requests);
         }
 
         return 'Incident was sent';
@@ -76,11 +78,18 @@ class Leankoala implements Reporter
      * @param string $message
      * @param string $identifier
      */
-    private function doReport($status, $message)
+    private function doReport($status, $message, $requests = [])
     {
         $identifier = 'MissingRequest2_' . $this->systemId;
+
         $reporter = new \Koalamon\Client\Reporter\Reporter('', $this->apiKey, new Client(), $this->server);
+
+        $reporter->setEventProcessor(new Event\Processor\MongoDBProcessor());
+
         $event = new Event($identifier, $this->system, $status, 'MissingRequest2', $message, '', '', $this->systemId);
+
+        $event->addAttribute(new Event\Attribute('requests', json_encode($requests), true));
+
         $reporter->sendEvent($event);
     }
 }

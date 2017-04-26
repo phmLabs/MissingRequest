@@ -3,14 +3,12 @@
 namespace whm\MissingRequest\Cli\Command;
 
 use GuzzleHttp\Psr7\Request;
-use phm\HttpWebdriverClient\Http\HttpClient;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class InfoCommand extends Command
+class InfoCommand extends MissingRequestCommand
 {
     protected function configure()
     {
@@ -31,11 +29,13 @@ class InfoCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $client = new HttpClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'));
+        $client = $this->getClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'), $input->getOption('webdriversleep'));
+
         try {
             $response = $client->sendRequest(new Request('GET', $input->getArgument('url')));
         } catch (\Exception $e) {
             $output->writeln("<error>" . $e->getMessage() . "</error>");
+            exit(1);
             exit($e->getExitCode());
         }
 

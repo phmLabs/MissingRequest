@@ -7,6 +7,7 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use whm\MissingRequest\Cli\Command\CrawlCommand;
 use whm\MissingRequest\Cli\Command\CreateCommand;
 use whm\MissingRequest\Cli\Command\InfoCommand;
 use whm\MissingRequest\Cli\Command\JenkinsCommand;
@@ -55,8 +56,7 @@ class Application extends \Symfony\Component\Console\Application
         $this->add(new RunCommand());
         $this->add(new InfoCommand());
         $this->add(new CreateCommand());
-        $this->add(new JenkinsCommand());
-        $this->add(new KoalamonSystemCommand());
         $this->add(new LeankoalaCommand());
+        $this->add(new CrawlCommand());
     }
 }

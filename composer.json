@@ -10,7 +10,8 @@
     "phmlabs/html": "~2.1",
     "phmLabs/httpwebdriveradapter": "dev-master",
     "koalamon/koalamonclient": "dev-master",
-    "koalamon/cookiemakerhelper": "dev-master"
+    "koalamon/cookiemakerhelper": "dev-master",
+    "phmlabs/crawler": "dev-master"
   },
   "autoload": {
     "psr-4": {

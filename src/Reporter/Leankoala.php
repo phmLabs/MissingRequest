@@ -32,10 +32,10 @@ class Leankoala implements Reporter
     /**
      * @param boolean $isFailure
      */
-    public function addTestcase($url, $mandatoryUrl, $isFailure, $groupKey, $urlKey, $message = '', $requests = [])
+    public function addTestcase($url, $mandatoryUrl, $isFailure, $groupKey, $urlKey, $message = '', $requests = [], $content = "")
     {
         if ($isFailure) {
-            $this->tests[$url][$groupKey][$urlKey][] = ['url' => $mandatoryUrl, 'message' => $message, 'requests' => $requests];
+            $this->tests[$url][$groupKey][$urlKey][] = ['url' => $mandatoryUrl, 'message' => $message, 'requests' => $requests, 'content' => $content];
         } else {
             $this->tests[$url][$groupKey][$urlKey][] = false;
         }
@@ -49,12 +49,14 @@ class Leankoala implements Reporter
 
             $message .= 'Some mandatory requests on ' . $url . ' were not found.<ul>';
             $requests = [];
+            $content = "";
 
             foreach ($urlKeys as $groupIdentifier => $groups) {
                 foreach ($groups as $groupName => $missingUrls) {
                     foreach ($missingUrls as $missingUrl) {
                         if ($missingUrl !== false) {
                             $requests = $missingUrl['requests'];
+                            $content = $missingUrl['content'];
                             $message .= '<li>' . stripslashes($missingUrl['url']) . ': ' . $missingUrl['message'] . '</li>';
                             $status = 'failure';
                         }
@@ -67,7 +69,7 @@ class Leankoala implements Reporter
                 $message = 'All mandatory requests for ' . $url . ' were found.';
             }
 
-            $this->doReport($status, $message, $requests);
+            $this->doReport($status, $message, $requests, $content);
         }
 
         return 'Incident was sent';
@@ -78,7 +80,7 @@ class Leankoala implements Reporter
      * @param string $message
      * @param string $identifier
      */
-    private function doReport($status, $message, $requests = [])
+    private function doReport($status, $message, $requests, $content)
     {
         $identifier = 'MissingRequest2_' . $this->systemId;
 
@@ -89,6 +91,7 @@ class Leankoala implements Reporter
         $event = new Event($identifier, $this->system, $status, 'MissingRequest2', $message, '', '', $this->systemId);
 
         $event->addAttribute(new Event\Attribute('requests', json_encode($requests), true));
+        $event->addAttribute(new Event\Attribute('html content', $content, true));
 
         $reporter->sendEvent($event);
     }

@@ -19,7 +19,7 @@ class EchoReporter implements Reporter
     /**
      * @param boolean $isFailure
      */
-    public function addTestcase($url, $mandatoryUrl, $isFailure, $groupKey, $urlKey, $message = '', $requests = [])
+    public function addTestcase($url, $mandatoryUrl, $isFailure, $groupKey, $urlKey, $message = '', $requests = [], $content = "")
     {
         if ($isFailure) {
             $this->tests[$url][$groupKey][$urlKey][] = ['url' => $mandatoryUrl, 'message' => $message];

@@ -86,7 +86,7 @@ class Leankoala implements Reporter
 
         $reporter = new \Koalamon\Client\Reporter\Reporter('', $this->apiKey, new Client(), $this->server);
 
-        $reporter->setEventProcessor(new Event\Processor\MongoDBProcessor());
+        $reporter->setEventProcessor(Event\Processor\MongoDBProcessor::createByEnvironmentVars('leankoala'));
 
         $event = new Event($identifier, $this->system, $status, 'MissingRequest2', $message, '', '', $this->systemId);
 

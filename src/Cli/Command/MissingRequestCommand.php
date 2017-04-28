@@ -5,10 +5,9 @@ namespace whm\MissingRequest\Cli\Command;
 use Cache\Adapter\Filesystem\FilesystemCachePool;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
-use phm\HttpWebdriverClient\Http\ChromeClient;
-use phm\HttpWebdriverClient\Http\ChromeResponse;
-use phm\HttpWebdriverClient\Http\Decorator\CacheDecorator;
-use phm\HttpWebdriverClient\Http\HttpClient;
+use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeClient;
+use phm\HttpWebdriverClient\Http\Client\Decorator\CacheDecorator;
+use phm\HttpWebdriverClient\Http\Client\HttpClient;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use GuzzleHttp\Psr7\Request;
@@ -20,7 +19,7 @@ abstract class MissingRequestCommand extends Command
     const PROBE_COUNT = 2;
 
     /**
-     * @return ChromeClient
+     * @return HttpClient
      */
     protected function getClient($host, $port, $sleep = 1)
     {

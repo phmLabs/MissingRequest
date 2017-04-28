@@ -36,10 +36,9 @@ class InfoCommand extends MissingRequestCommand
         } catch (\Exception $e) {
             $output->writeln("<error>" . $e->getMessage() . "</error>");
             exit(1);
-            exit($e->getExitCode());
         }
 
-        $urls = $response->getRequests();
+        $urls = $response->getResources();
 
         $output->writeln("\n<info>Scanning " . $input->getArgument('url') . "</info>\n");
 

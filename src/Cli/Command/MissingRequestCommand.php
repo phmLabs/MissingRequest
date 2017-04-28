@@ -6,6 +6,7 @@ use Cache\Adapter\Filesystem\FilesystemCachePool;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use phm\HttpWebdriverClient\Http\ChromeClient;
+use phm\HttpWebdriverClient\Http\ChromeResponse;
 use phm\HttpWebdriverClient\Http\Decorator\CacheDecorator;
 use phm\HttpWebdriverClient\Http\HttpClient;
 use Symfony\Component\Console\Command\Command;
@@ -18,6 +19,9 @@ abstract class MissingRequestCommand extends Command
 {
     const PROBE_COUNT = 2;
 
+    /**
+     * @return ChromeClient
+     */
     protected function getClient($host, $port, $sleep = 1)
     {
         $chromeClient = new ChromeClient($host, $port, $sleep, true);

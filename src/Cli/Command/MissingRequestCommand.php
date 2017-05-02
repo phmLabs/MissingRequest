@@ -6,6 +6,7 @@ use Cache\Adapter\Filesystem\FilesystemCachePool;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeClient;
+use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeResponse;
 use phm\HttpWebdriverClient\Http\Client\Decorator\CacheDecorator;
 use phm\HttpWebdriverClient\Http\Client\HttpClient;
 use Symfony\Component\Console\Command\Command;
@@ -47,6 +48,7 @@ abstract class MissingRequestCommand extends Command
             }
 
             $response = $client->sendRequest(new Request('GET', $uri));
+            /** @var ChromeResponse $response */
 
             foreach ($collections as $collection) {
 
@@ -57,7 +59,7 @@ abstract class MissingRequestCommand extends Command
                     $count = $mandatoryRequest['value'];
                     $relation = $mandatoryRequest['relation'];
 
-                    $numFound = $response->getRequestCount($pattern);
+                    $numFound = $response->getResourceCount($pattern);
 
                     switch ($relation) {
                         case 'equals':
@@ -93,7 +95,7 @@ abstract class MissingRequestCommand extends Command
                         'groupName' => $collection['name'],
                         'pageKey' => $name,
                         'htmlContent' => $response->getBody(),
-                        'requests' => $response->getRequests()
+                        'requests' => $response->getResources()
                     );
                 }
             }

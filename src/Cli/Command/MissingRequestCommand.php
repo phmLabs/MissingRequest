@@ -20,11 +20,11 @@ abstract class MissingRequestCommand extends Command
     const PROBE_COUNT = 2;
 
     /**
-     * @return HttpClient
+     * @return ChromeClient
      */
     protected function getClient($host, $port, $sleep = 1)
     {
-        $chromeClient = new ChromeClient($host, $port, $sleep, true);
+        $chromeClient = new ChromeClient($host, $port, $sleep, false);
 
         $filesystemAdapter = new Local('/tmp/cached/missing/');
         $filesystem = new Filesystem($filesystemAdapter);

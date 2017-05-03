@@ -4,6 +4,7 @@ namespace whm\MissingRequest\Cli\Command;
 
 use Koalamon\Client\Reporter\Reporter;
 use Koalamon\CookieMakerHelper\CookieMaker;
+use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeClient;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -69,6 +70,7 @@ class LeankoalaCommand extends MissingRequestCommand
         }
 
         $client = $this->getClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'), $input->getOption('webdriversleep'));
+        /** @var ChromeClient $client */
 
         $output->writeln('Checking ' . (string)$uri . ' ...');
 
@@ -81,6 +83,7 @@ class LeankoalaCommand extends MissingRequestCommand
 
         $uri->addCookies($cookies);
         $results = $this->runSingleUrl($uri, $collections, $client, $output);
+        $client->close();
 
         $this->processResult($results, $incidentReporter);
     }

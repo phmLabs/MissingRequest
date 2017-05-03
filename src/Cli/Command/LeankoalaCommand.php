@@ -49,7 +49,18 @@ class LeankoalaCommand extends MissingRequestCommand
 
         $uri = new Uri($input->getArgument('url'));
 
-        $mr2object = json_decode($input->getOption('koalamon_system_collections'), true);
+        $incidentReporter = new Leankoala($projectApiKey, $input->getOption('koalamon_system_identifier'), $input->getOption('koalamon_system_id'), $input->getOption('koalamon_server'));
+
+        $rawCollections = $input->getOption('koalamon_system_collections');
+
+        if ($rawCollections == "[]") {
+            $incidentReporter->addTestcase('', '', false, '', '', 'No requests defined.', [], "");
+            $incidentReporter->getReport();
+            return;
+        }
+
+        $mr2object = json_decode($rawCollections, true);
+
         $collections = array();
 
         foreach ($mr2object['checkedRequests'] as $key => $element) {
@@ -57,7 +68,6 @@ class LeankoalaCommand extends MissingRequestCommand
             $collections[$element['name']]['name'] = $element['name'];
         }
 
-        $incidentReporter = new Leankoala($projectApiKey, $input->getOption('koalamon_system_identifier'), $input->getOption('koalamon_system_id'), $input->getOption('koalamon_server'));
         $client = $this->getClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'), $input->getOption('webdriversleep'));
 
         $output->writeln('Checking ' . (string)$uri . ' ...');
@@ -71,6 +81,7 @@ class LeankoalaCommand extends MissingRequestCommand
 
         $uri->addCookies($cookies);
         $results = $this->runSingleUrl($uri, $collections, $client, $output);
+
         $this->processResult($results, $incidentReporter);
     }
 

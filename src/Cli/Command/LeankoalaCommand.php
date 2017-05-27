@@ -20,6 +20,8 @@ class LeankoalaCommand extends MissingRequestCommand
     const PROBE_COUNT = 2;
     const PHANTOM_TIMEOUT = 2000;
 
+    const FALLBACK_STRING = 'FALLBACK';
+
     protected function configure()
     {
         $this
@@ -46,6 +48,8 @@ class LeankoalaCommand extends MissingRequestCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $isFallbackServer = getenv('IS_FALLBACK_SERVER');
+
         $projectApiKey = $input->getOption('koalamon_project_api_key');
 
         $uri = new Uri($input->getArgument('url'));
@@ -69,8 +73,8 @@ class LeankoalaCommand extends MissingRequestCommand
             $collections[$element['name']]['name'] = $element['name'];
         }
 
-        $client = $this->getClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'), $input->getOption('webdriversleep'));
         /** @var ChromeClient $client */
+        $client = $this->getClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'), $input->getOption('webdriversleep'));
 
         $output->writeln('Checking ' . (string)$uri . ' ...');
 
@@ -82,7 +86,16 @@ class LeankoalaCommand extends MissingRequestCommand
         }
 
         $uri->addCookies($cookies);
-        $results = $this->runSingleUrl($uri, $collections, $client, $output);
+
+        try {
+            $results = $this->runSingleUrl($uri, $collections, $client, $output);
+        } catch (\Exception $e) {
+            if ($isFallbackServer != "true") {
+                die(self::FALLBACK_STRING);
+            } else {
+                throw $e;
+            }
+        }
         $client->close();
 
         $this->processResult($results, $incidentReporter);

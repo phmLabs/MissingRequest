@@ -90,7 +90,7 @@ class LeankoalaCommand extends MissingRequestCommand
         try {
             $results = $this->runSingleUrl($uri, $collections, $client, $output);
         } catch (\Exception $e) {
-            if ($isFallbackServer != "true") {
+            if ($isFallbackServer !== "true") {
                 die(self::FALLBACK_STRING);
             } else {
                 throw $e;

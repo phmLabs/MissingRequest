@@ -66,6 +66,13 @@ class LeankoalaCommand extends MissingRequestCommand
 
         $mr2object = json_decode($rawCollections, true);
 
+        if (!$mr2object) {
+            $output->writeln('');
+            $output->writeln('<error> Error parsing koalamin_system_collection </error>');
+            $output->writeln('');
+            exit(1);
+        }
+
         $collections = array();
 
         foreach ($mr2object['checkedRequests'] as $key => $element) {
@@ -91,6 +98,8 @@ class LeankoalaCommand extends MissingRequestCommand
             $results = $this->runSingleUrl($uri, $collections, $client, $output);
         } catch (\Exception $e) {
             if ($isFallbackServer !== "true") {
+                $client->close();
+                var_dump($e->getMessage());
                 die(self::FALLBACK_STRING);
             } else {
                 throw $e;

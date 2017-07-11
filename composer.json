@@ -11,6 +11,7 @@
     "phmLabs/httpwebdriveradapter": "dev-master",
     "koalamon/koalamonclient": "dev-master",
     "koalamon/cookiemakerhelper": "dev-master",
+    "koalamon/fallbackhelper": "dev-master",
     "phmlabs/crawler": "dev-master"
   },
   "autoload": {

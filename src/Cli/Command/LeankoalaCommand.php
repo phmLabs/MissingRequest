@@ -4,6 +4,7 @@ namespace whm\MissingRequest\Cli\Command;
 
 use Koalamon\Client\Reporter\Reporter;
 use Koalamon\CookieMakerHelper\CookieMaker;
+use Koalamon\FallbackHelper\FallbackHelper;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeClient;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,8 +20,6 @@ class LeankoalaCommand extends MissingRequestCommand
 {
     const PROBE_COUNT = 2;
     const PHANTOM_TIMEOUT = 2000;
-
-    const FALLBACK_STRING = 'FALLBACK';
 
     protected function configure()
     {
@@ -48,8 +47,6 @@ class LeankoalaCommand extends MissingRequestCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $isFallbackServer = getenv('IS_FALLBACK_SERVER');
-
         $projectApiKey = $input->getOption('koalamon_project_api_key');
 
         $uri = new Uri($input->getArgument('url'));
@@ -97,10 +94,11 @@ class LeankoalaCommand extends MissingRequestCommand
         try {
             $results = $this->runSingleUrl($uri, $collections, $client, $output);
         } catch (\Exception $e) {
-            if ($isFallbackServer !== "true") {
-                $client->close();
-                var_dump($e->getMessage());
-                die(self::FALLBACK_STRING);
+            $client->close();
+            $fallbackHelper = new FallbackHelper();
+            if (!$fallbackHelper->isFallbackServer()) {
+                $fallbackHelper->doFallback($e->getMessage());
+                die();
             } else {
                 throw $e;
             }

@@ -34,9 +34,12 @@ class InfoCommand extends MissingRequestCommand
         try {
             $response = $client->sendRequest(new Request('GET', $input->getArgument('url')));
         } catch (\Exception $e) {
+            $client->close();
             $output->writeln("<error>" . $e->getMessage() . "</error>");
             exit(1);
         }
+
+        $client->close();
 
         $urls = $response->getResources();
 

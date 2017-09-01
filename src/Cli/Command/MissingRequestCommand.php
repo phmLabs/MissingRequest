@@ -8,6 +8,7 @@ use League\Flysystem\Filesystem;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeClient;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeResponse;
 use phm\HttpWebdriverClient\Http\Client\Decorator\CacheDecorator;
+use phm\HttpWebdriverClient\Http\Client\Decorator\FileCacheDecorator;
 use phm\HttpWebdriverClient\Http\Client\HttpClient;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -25,13 +26,7 @@ abstract class MissingRequestCommand extends Command
     protected function getClient($host, $port, $sleep = 1)
     {
         $chromeClient = new ChromeClient($host, $port, $sleep, false);
-
-        $filesystemAdapter = new Local('/tmp/cached/missing/');
-        $filesystem = new Filesystem($filesystemAdapter);
-        $cachePoolInterface = new FilesystemCachePool($filesystem);
-        $client = new CacheDecorator($chromeClient, $cachePoolInterface);
-
-        return $client;
+        return new FileCacheDecorator($chromeClient);
     }
 
     protected function runSingleUrl(Uri $uri, $collections, HttpClient $client, OutputInterface $output)

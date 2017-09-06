@@ -32,7 +32,8 @@ class InfoCommand extends MissingRequestCommand
         $client = $this->getClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'), $input->getOption('webdriversleep'));
 
         try {
-            $response = $client->sendRequest(new Request('GET', $input->getArgument('url')));
+            $headers = ['Accept-Encoding' => 'gzip', 'Connection' => 'keep-alive'];
+            $response = $client->sendRequest(new Request('GET', $input->getArgument('url'), $headers));
         } catch (\Exception $e) {
             $client->close();
             $output->writeln("<error>" . $e->getMessage() . "</error>");

@@ -2,9 +2,6 @@
 
 namespace whm\MissingRequest\Cli\Command;
 
-use Cache\Adapter\Filesystem\FilesystemCachePool;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeClient;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeResponse;
 use phm\HttpWebdriverClient\Http\Client\Decorator\CacheDecorator;
@@ -42,7 +39,8 @@ abstract class MissingRequestCommand extends Command
                 continue;
             }
 
-            $response = $client->sendRequest(new Request('GET', $uri));
+            $headers = ['Accept-Encoding' => 'gzip', 'Connection' => 'keep-alive'];
+            $response = $client->sendRequest(new Request('GET', $uri, $headers));
             /** @var ChromeResponse $response */
 
             foreach ($collections as $collection) {

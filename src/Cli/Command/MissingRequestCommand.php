@@ -4,7 +4,6 @@ namespace whm\MissingRequest\Cli\Command;
 
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeClient;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeResponse;
-use phm\HttpWebdriverClient\Http\Client\Decorator\CacheDecorator;
 use phm\HttpWebdriverClient\Http\Client\Decorator\FileCacheDecorator;
 use phm\HttpWebdriverClient\Http\Client\HttpClient;
 use Symfony\Component\Console\Command\Command;
@@ -40,8 +39,14 @@ abstract class MissingRequestCommand extends Command
             }
 
             $headers = ['Accept-Encoding' => 'gzip', 'Connection' => 'keep-alive'];
-            $response = $client->sendRequest(new Request('GET', $uri, $headers));
-            /** @var ChromeResponse $response */
+
+            try {
+                $response = $client->sendRequest(new Request('GET', $uri, $headers));
+                /** @var ChromeResponse $response */
+            } catch (\Exception $exception) {
+                $client->close();
+                throw $exception;
+            }
 
             foreach ($collections as $collection) {
 

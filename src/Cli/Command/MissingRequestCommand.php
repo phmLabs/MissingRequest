@@ -19,14 +19,20 @@ abstract class MissingRequestCommand extends Command
     /**
      * @return ChromeClient
      */
-    protected function getClient($host, $port, $sleep = 1)
+    protected function getClient($host, $port, $sleep = 1, $nocache = false)
     {
-        $chromeClient = new ChromeClient($host, $port, $sleep, false);
-        return new FileCacheDecorator($chromeClient);
+        if ($nocache) {
+            return new ChromeClient($host, $port, $sleep, false);
+        } else {
+            $chromeClient = new ChromeClient($host, $port, $sleep, false);
+            return new FileCacheDecorator($chromeClient);
+        }
     }
 
     protected function runSingleUrl(Uri $uri, $collections, HttpClient $client, OutputInterface $output)
     {
+        /** @var ChromeClient $client */
+
         $results = array();
         $failure = false;
 

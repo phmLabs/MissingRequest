@@ -36,6 +36,7 @@ class LeankoalaCommand extends MissingRequestCommand
                 new InputOption('webdriverhost', 'w', InputOption::VALUE_OPTIONAL, 'Webdriver host', 'localhost'),
                 new InputOption('webdriverport', 'x', InputOption::VALUE_OPTIONAL, 'Webdriver port', 4444),
                 new InputOption('webdriversleep', 't', InputOption::VALUE_OPTIONAL, 'Webdriver sleep time', 5),
+                new InputOption('nocache', null, InputOption::VALUE_NONE, 'diable cache'),
             ))
             ->setDescription('Checks if requests are fired and sends the results to koalamon')
             ->setName('leankoala');
@@ -78,7 +79,7 @@ class LeankoalaCommand extends MissingRequestCommand
         }
 
         /** @var ChromeClient $client */
-        $client = $this->getClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'), $input->getOption('webdriversleep'));
+        $client = $this->getClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'), $input->getOption('webdriversleep'), $input->getOption('nocache'));
 
         $output->writeln('Checking ' . (string)$uri . ' ...');
 

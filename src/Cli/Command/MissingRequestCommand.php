@@ -5,6 +5,7 @@ namespace whm\MissingRequest\Cli\Command;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeClient;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeResponse;
 use phm\HttpWebdriverClient\Http\Client\Decorator\FileCacheDecorator;
+use phm\HttpWebdriverClient\Http\Client\HeadlessChrome\HeadlessChromeClient;
 use phm\HttpWebdriverClient\Http\Client\HttpClient;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,10 +22,11 @@ abstract class MissingRequestCommand extends Command
      */
     protected function getClient($host, $port, $sleep = 1, $nocache = false)
     {
+        $client = new HeadlessChromeClient($host, $port, $sleep, false);
         if ($nocache) {
-            return new ChromeClient($host, $port, $sleep, false);
+            return $client;
         } else {
-            $chromeClient = new ChromeClient($host, $port, $sleep, false);
+            $chromeClient = $client;
             return new FileCacheDecorator($chromeClient);
         }
     }

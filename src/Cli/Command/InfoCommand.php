@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use whm\Html\Uri;
 
 class InfoCommand extends MissingRequestCommand
 {
@@ -33,7 +34,7 @@ class InfoCommand extends MissingRequestCommand
 
         try {
             $headers = ['Accept-Encoding' => 'gzip', 'Connection' => 'keep-alive'];
-            $response = $client->sendRequest(new Request('GET', $input->getArgument('url'), $headers));
+            $response = $client->sendRequest(new Request('GET', new Uri($input->getArgument('url')), $headers));
         } catch (\Exception $e) {
             $client->close();
             $output->writeln("<error>" . $e->getMessage() . "</error>");

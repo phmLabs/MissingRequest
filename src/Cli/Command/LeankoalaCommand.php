@@ -6,6 +6,7 @@ use Koalamon\Client\Reporter\Reporter;
 use Koalamon\CookieMakerHelper\CookieMaker;
 use Koalamon\FallbackHelper\FallbackHelper;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeClient;
+use phm\HttpWebdriverClient\Http\Client\HeadlessChrome\HeadlessChromeClient;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -33,9 +34,7 @@ class LeankoalaCommand extends MissingRequestCommand
                 new InputOption('koalamon_server', 's', InputOption::VALUE_OPTIONAL, 'Koalamon System Identifier'),
                 new InputOption('koalamon_system_id', 'z', InputOption::VALUE_REQUIRED, 'Koalamon System ID'),
                 new InputOption('login', 'l', InputOption::VALUE_OPTIONAL, 'Login credentials'),
-                new InputOption('webdriverhost', 'w', InputOption::VALUE_OPTIONAL, 'Webdriver host', 'localhost'),
-                new InputOption('webdriverport', 'x', InputOption::VALUE_OPTIONAL, 'Webdriver port', 4444),
-                new InputOption('webdriversleep', 't', InputOption::VALUE_OPTIONAL, 'Webdriver sleep time', 5),
+                new InputOption('client_timeout', 't', InputOption::VALUE_OPTIONAL, 'Client timeout', '31000'),
                 new InputOption('nocache', null, InputOption::VALUE_NONE, 'diable cache'),
             ))
             ->setDescription('Checks if requests are fired and sends the results to koalamon')
@@ -78,8 +77,8 @@ class LeankoalaCommand extends MissingRequestCommand
             $collections[$element['name']]['name'] = $element['name'];
         }
 
-        /** @var ChromeClient $client */
-        $client = $this->getClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'), $input->getOption('webdriversleep'), $input->getOption('nocache'));
+        /** @var HeadlessChromeClient $client */
+        $client = $this->getClient($input->getOption('client_timeout'), $input->getOption('nocache'));
 
         $output->writeln('Checking ' . (string)$uri . ' ...');
 

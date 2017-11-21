@@ -3,6 +3,7 @@
 namespace whm\MissingRequest\Cli\Command;
 
 use GuzzleHttp\Psr7\Request;
+use phm\HttpWebdriverClient\Http\Client\HeadlessChrome\HeadlessChromeClient;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -16,9 +17,7 @@ class InfoCommand extends MissingRequestCommand
         $this
             ->setDefinition(array(
                 new InputArgument('url', InputArgument::REQUIRED, 'url to be scanned'),
-                new InputOption('webdriverhost', 'w', InputOption::VALUE_OPTIONAL, 'Webdriver host', 'localhost'),
-                new InputOption('webdriverport', 'x', InputOption::VALUE_OPTIONAL, 'Webdriver port', 4444),
-                new InputOption('webdriversleep', 't', InputOption::VALUE_OPTIONAL, 'Webdriver sleep', 1),
+                new InputOption('client_timeout', 't', InputOption::VALUE_OPTIONAL, 'Client timeout', '31000'),
             ))
             ->setDescription('Shows all requests')
             ->setName('info');
@@ -30,7 +29,8 @@ class InfoCommand extends MissingRequestCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $client = $this->getClient($input->getOption('webdriverhost'), $input->getOption('webdriverport'), $input->getOption('webdriversleep'));
+        /** @var HeadlessChromeClient $client */
+        $client = $this->getClient($input->getOption('client_timeout'), true);
 
         try {
             $headers = ['Accept-Encoding' => 'gzip', 'Connection' => 'keep-alive'];

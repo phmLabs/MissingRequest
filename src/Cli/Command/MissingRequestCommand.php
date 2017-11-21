@@ -18,11 +18,11 @@ abstract class MissingRequestCommand extends Command
     const PROBE_COUNT = 2;
 
     /**
-     * @return ChromeClient
+     * @return HeadlessChromeClient
      */
-    protected function getClient($host, $port, $sleep = 1, $nocache = false)
+    protected function getClient($clientTimeOut = 31000, $nocache = false)
     {
-        $client = new HeadlessChromeClient($host, $port, $sleep, false);
+        $client = new HeadlessChromeClient($clientTimeOut);
         if ($nocache) {
             return $client;
         } else {

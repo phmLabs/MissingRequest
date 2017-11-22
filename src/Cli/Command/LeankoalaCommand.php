@@ -65,7 +65,7 @@ class LeankoalaCommand extends MissingRequestCommand
 
         if (!$mr2object) {
             $output->writeln('');
-            $output->writeln('<error> Error parsing koalamin_system_collection </error>');
+            $output->writeln('<error> Error parsing koalamon_system_collection </error>');
             $output->writeln('');
             exit(1);
         }

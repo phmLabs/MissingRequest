@@ -53,10 +53,8 @@ class Application extends \Symfony\Component\Console\Application
      */
     private function registerCommands()
     {
-        $this->add(new RunCommand());
         $this->add(new InfoCommand());
         $this->add(new CreateCommand());
         $this->add(new LeankoalaCommand());
-        $this->add(new CrawlCommand());
     }
 }

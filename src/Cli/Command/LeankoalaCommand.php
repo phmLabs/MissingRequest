@@ -120,7 +120,7 @@ class LeankoalaCommand extends MissingRequestCommand
                 };
             }
 
-            $incidentReporter->addTestcase($result["url"], $result['mandatoryRequest'], !$requestFound, $result['groupName'], $result['pageKey'], $result['massage'], $result['requests'], $result['htmlContent']);
+            $incidentReporter->addTestcase($result["url"], $result['mandatoryRequest'], !$requestFound, $result['groupName'], $result['pageKey'], $result['massage'], $result['requests'], $result['htmlContent'], $result['timeout']);
         }
 
         $incidentReporter->getReport();

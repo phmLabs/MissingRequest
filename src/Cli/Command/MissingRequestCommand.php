@@ -7,6 +7,7 @@ use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeResponse;
 use phm\HttpWebdriverClient\Http\Client\Decorator\FileCacheDecorator;
 use phm\HttpWebdriverClient\Http\Client\HeadlessChrome\HeadlessChromeClient;
 use phm\HttpWebdriverClient\Http\Client\HttpClient;
+use phm\HttpWebdriverClient\Http\Response\TimeoutAwareResponse;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use GuzzleHttp\Psr7\Request;
@@ -93,6 +94,12 @@ abstract class MissingRequestCommand extends Command
                         $failure = true;
                     }
 
+                    if ($response instanceof TimeoutAwareResponse) {
+                        $timeout = $response->isTimeout();
+                    } else {
+                        $timeout = false;
+                    }
+
                     $results[$i][] = array(
                         "url" => (string)$uri,
                         'mandatoryRequest' => $name . " (" . $pattern . ")",
@@ -101,7 +108,8 @@ abstract class MissingRequestCommand extends Command
                         'groupName' => $collection['name'],
                         'pageKey' => $name,
                         'htmlContent' => $response->getBody(),
-                        'requests' => $response->getResources()
+                        'requests' => $response->getResources(),
+                        'timeout' => $timeout
                     );
                 }
             }

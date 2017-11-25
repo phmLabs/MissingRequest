@@ -32,7 +32,7 @@ abstract class MissingRequestCommand extends Command
         }
     }
 
-    protected function runSingleUrl(Uri $uri, $collections, HttpClient $client, OutputInterface $output)
+    protected function runSingleUrl(Uri $uri, $collections, HttpClient $client, OutputInterface $output, $maxRetries = 1)
     {
         /** @var ChromeClient $client */
 
@@ -86,18 +86,22 @@ abstract class MissingRequestCommand extends Command
                             $message = 'The relation (' . $relation . ') was not found.';
                     }
 
-                    if ($result) {
-                        $status = KoalamonReporter::RESPONSE_STATUS_SUCCESS;
-                        $message = '';
-                    } else {
-                        $status = KoalamonReporter::RESPONSE_STATUS_FAILURE;
-                        $failure = true;
-                    }
-
                     if ($response instanceof TimeoutAwareResponse) {
                         $timeout = $response->isTimeout();
                     } else {
                         $timeout = false;
+                    }
+
+                    if ($result) {
+                        $status = KoalamonReporter::RESPONSE_STATUS_SUCCESS;
+                        $message = '';
+                    } else {
+                        if ($timeout && $maxRetries != 0) {
+                            return $this->runSingleUrl($uri, $collections, $client, $output, $maxRetries - 1);
+                        }
+
+                        $status = KoalamonReporter::RESPONSE_STATUS_FAILURE;
+                        $failure = true;
                     }
 
                     $results[$i][] = array(

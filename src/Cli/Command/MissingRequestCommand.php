@@ -9,6 +9,7 @@ use phm\HttpWebdriverClient\Http\Client\Decorator\ClientDecorator;
 use phm\HttpWebdriverClient\Http\Client\Decorator\FileCacheDecorator;
 use phm\HttpWebdriverClient\Http\Client\HeadlessChrome\HeadlessChromeClient;
 use phm\HttpWebdriverClient\Http\Client\HttpClient;
+use phm\HttpWebdriverClient\Http\Client\TimeOutException;
 use phm\HttpWebdriverClient\Http\Response\TimeoutAwareResponse;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,7 +19,7 @@ use whm\Html\Uri;
 
 abstract class MissingRequestCommand extends Command
 {
-    const PROBE_COUNT = 2;
+    const PROBE_COUNT = 1;
 
     private $client;
 
@@ -100,13 +101,16 @@ abstract class MissingRequestCommand extends Command
                         $status = KoalamonReporter::RESPONSE_STATUS_SUCCESS;
                         $message = '';
                     } else {
-                        if ($timeout && $maxRetries != 0) {
-                            if ($this->client instanceof CacheDecorator) {
-                                $this->client->deactivateCache();
+                        if ($timeout) {
+                            if ($maxRetries != 0) {
+                                if ($this->client instanceof CacheDecorator) {
+                                    $this->client->deactivateCache();
+                                }
+                                return $this->runSingleUrl($uri, $collections, $client, $output, $maxRetries - 1);
+                            } else {
+                                throw  new \RuntimeException('Timeout for ' . (string)$uri);
                             }
-                            return $this->runSingleUrl($uri, $collections, $client, $output, $maxRetries - 1);
                         }
-
                         $status = KoalamonReporter::RESPONSE_STATUS_FAILURE;
                         $failure = true;
                     }

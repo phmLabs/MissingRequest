@@ -51,6 +51,7 @@ class InfoCommand extends MissingRequestCommand
             $output->writeln(' - ' . $url['name']);
         }
 
-        $output->writeln("\n<info>   " . count($urls) . " requests found</info>\n");
+        $timeout = $response->isTimeout() ? 'true' : 'false';
+        $output->writeln("\n<info>   " . count($urls) . " requests found</info> (timeout: " . $timeout . ")\n");
     }
 }

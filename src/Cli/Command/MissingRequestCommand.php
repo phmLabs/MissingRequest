@@ -4,6 +4,8 @@ namespace whm\MissingRequest\Cli\Command;
 
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeClient;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeResponse;
+use phm\HttpWebdriverClient\Http\Client\Decorator\CacheDecorator;
+use phm\HttpWebdriverClient\Http\Client\Decorator\ClientDecorator;
 use phm\HttpWebdriverClient\Http\Client\Decorator\FileCacheDecorator;
 use phm\HttpWebdriverClient\Http\Client\HeadlessChrome\HeadlessChromeClient;
 use phm\HttpWebdriverClient\Http\Client\HttpClient;
@@ -17,6 +19,8 @@ use whm\Html\Uri;
 abstract class MissingRequestCommand extends Command
 {
     const PROBE_COUNT = 2;
+
+    private $client;
 
     /**
      * @return HeadlessChromeClient
@@ -97,6 +101,9 @@ abstract class MissingRequestCommand extends Command
                         $message = '';
                     } else {
                         if ($timeout && $maxRetries != 0) {
+                            if ($this->client instanceof CacheDecorator) {
+                                $this->client->deactivateCache();
+                            }
                             return $this->runSingleUrl($uri, $collections, $client, $output, $maxRetries - 1);
                         }
 

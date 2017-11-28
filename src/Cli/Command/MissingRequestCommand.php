@@ -103,12 +103,9 @@ abstract class MissingRequestCommand extends Command
                     } else {
                         if ($timeout) {
                             if ($maxRetries != 0) {
-                                if ($this->client instanceof CacheDecorator) {
-                                    $this->client->deactivateCache();
-                                }
                                 return $this->runSingleUrl($uri, $collections, $client, $output, $maxRetries - 1);
                             } else {
-                                throw  new \RuntimeException('Timeout for ' . (string)$uri);
+                                throw new \RuntimeException('Timeout for ' . (string)$uri);
                             }
                         }
                         $status = KoalamonReporter::RESPONSE_STATUS_FAILURE;

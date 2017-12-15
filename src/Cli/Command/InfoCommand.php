@@ -48,7 +48,7 @@ class InfoCommand extends MissingRequestCommand
         $output->writeln("\n<info>Scanning " . $input->getArgument('url') . "</info>\n");
 
         foreach ($urls as $url) {
-            $output->writeln(' - ' . $url['name']);
+            $output->writeln(' - ' . $url['name'] . ' (HTTP: ' . $url['http_status'] . ')');
         }
 
         $timeout = $response->isTimeout() ? 'true' : 'false';

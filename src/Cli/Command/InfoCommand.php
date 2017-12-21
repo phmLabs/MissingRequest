@@ -4,6 +4,8 @@ namespace whm\MissingRequest\Cli\Command;
 
 use GuzzleHttp\Psr7\Request;
 use phm\HttpWebdriverClient\Http\Client\HeadlessChrome\HeadlessChromeClient;
+use phm\HttpWebdriverClient\Http\Request\BrowserRequest;
+use phm\HttpWebdriverClient\Http\Request\Device\DeviceFactory;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -18,6 +20,7 @@ class InfoCommand extends MissingRequestCommand
             ->setDefinition(array(
                 new InputArgument('url', InputArgument::REQUIRED, 'url to be scanned'),
                 new InputOption('client_timeout', 't', InputOption::VALUE_OPTIONAL, 'Client timeout', '31000'),
+                new InputOption('device', 'd', InputOption::VALUE_OPTIONAL, 'Device', 'MacBookPro152017'),
             ))
             ->setDescription('Shows all requests')
             ->setName('info');
@@ -34,7 +37,13 @@ class InfoCommand extends MissingRequestCommand
 
         try {
             $headers = ['Accept-Encoding' => 'gzip', 'Connection' => 'keep-alive'];
-            $response = $client->sendRequest(new Request('GET', new Uri($input->getArgument('url')), $headers));
+
+            $request = new BrowserRequest('GET', new Uri($input->getArgument('url')), $headers);
+
+            $device = DeviceFactory::create($input->getOption('device'));
+            $request->setDevice($device);
+
+            $response = $client->sendRequest($request);
         } catch (\Exception $e) {
             $client->close();
             $output->writeln("<error>" . $e->getMessage() . "</error>");

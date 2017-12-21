@@ -11,6 +11,7 @@ use phm\HttpWebdriverClient\Http\Client\HeadlessChrome\HeadlessChromeClient;
 use phm\HttpWebdriverClient\Http\Client\HttpClient;
 use phm\HttpWebdriverClient\Http\Client\TimeOutException;
 use phm\HttpWebdriverClient\Http\Response\TimeoutAwareResponse;
+use Psr\Http\Message\RequestInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use GuzzleHttp\Psr7\Request;
@@ -37,7 +38,7 @@ abstract class MissingRequestCommand extends Command
         }
     }
 
-    protected function runSingleUrl(Uri $uri, $collections, HttpClient $client, OutputInterface $output, $maxRetries = 1)
+    protected function runSingleRequest(RequestInterface $request, $collections, HttpClient $client, OutputInterface $output, $maxRetries = 1)
     {
         /** @var ChromeClient $client */
 
@@ -52,10 +53,8 @@ abstract class MissingRequestCommand extends Command
                 continue;
             }
 
-            $headers = ['Accept-Encoding' => 'gzip', 'Connection' => 'keep-alive'];
-
             try {
-                $response = $client->sendRequest(new Request('GET', $uri, $headers));
+                $response = $client->sendRequest($request);
                 /** @var ChromeResponse $response */
             } catch (\Exception $exception) {
                 $client->close();
@@ -103,9 +102,9 @@ abstract class MissingRequestCommand extends Command
                     } else {
                         if ($timeout) {
                             if ($maxRetries != 0) {
-                                return $this->runSingleUrl($uri, $collections, $client, $output, $maxRetries - 1);
+                                return $this->runSingleRequest($request, $collections, $client, $output, $maxRetries - 1);
                             } else {
-                                throw new \RuntimeException('Timeout for ' . (string)$uri);
+                                throw new \RuntimeException('Timeout for ' . (string)$request->getUri());
                             }
                         }
                         $status = KoalamonReporter::RESPONSE_STATUS_FAILURE;
@@ -113,7 +112,7 @@ abstract class MissingRequestCommand extends Command
                     }
 
                     $results[$i][] = array(
-                        "url" => (string)$uri,
+                        "url" => (string)$request->getUri(),
                         'mandatoryRequest' => $name . " (" . $pattern . ")",
                         'status' => $status,
                         'massage' => $message,

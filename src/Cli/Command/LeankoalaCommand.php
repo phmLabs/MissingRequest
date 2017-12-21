@@ -7,6 +7,7 @@ use Koalamon\CookieMakerHelper\CookieMaker;
 use Koalamon\FallbackHelper\FallbackHelper;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeClient;
 use phm\HttpWebdriverClient\Http\Client\HeadlessChrome\HeadlessChromeClient;
+use phm\HttpWebdriverClient\Http\Request\BrowserRequest;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -22,6 +23,8 @@ class LeankoalaCommand extends MissingRequestCommand
     const PROBE_COUNT = 2;
     const PHANTOM_TIMEOUT = 2000;
 
+    private $defaultHeaders = ['Accept-Encoding' => 'gzip', 'Connection' => 'keep-alive'];
+
     protected function configure()
     {
         $this
@@ -36,6 +39,7 @@ class LeankoalaCommand extends MissingRequestCommand
                 new InputOption('login', 'l', InputOption::VALUE_OPTIONAL, 'Login credentials'),
                 new InputOption('client_timeout', 't', InputOption::VALUE_OPTIONAL, 'Client timeout', '31000'),
                 new InputOption('nocache', null, InputOption::VALUE_NONE, 'diable cache'),
+                new InputOption('device', null, InputOption::VALUE_OPTIONAL, 'device', 'MacBookPro152017'),
             ))
             ->setDescription('Checks if requests are fired and sends the results to koalamon')
             ->setName('leankoala');
@@ -82,17 +86,13 @@ class LeankoalaCommand extends MissingRequestCommand
 
         $output->writeln('Checking ' . (string)$uri . ' ...');
 
-        if ($input->getOption('login') && $input->getOption('login') != "[]") {
-            $cookies = new CookieMaker();
-            $cookies = $cookies->getCookies($input->getOption('login'));
-        } else {
-            $cookies = [];
-        }
+        $cookies = $this->getCookies($input->getOption('login'));
 
-        $uri->addCookies($cookies);
+        $request = new BrowserRequest('GET', $uri, $this->defaultHeaders);
+        $request = $request->withCookies($cookies);
 
         try {
-            $results = $this->runSingleUrl($uri, $collections, $client, $output);
+            $results = $this->runSingleRequest($request, $collections, $client, $output);
         } catch (\Exception $e) {
             $client->close();
             $fallbackHelper = new FallbackHelper();
@@ -106,6 +106,18 @@ class LeankoalaCommand extends MissingRequestCommand
         $client->close();
 
         $this->processResult($results, $incidentReporter);
+    }
+
+    private function getCookies($login)
+    {
+        if ($login && $login != "[]") {
+            $cookies = new CookieMaker();
+            $cookies = $cookies->getCookies($login);
+        } else {
+            $cookies = [];
+        }
+
+        return $cookies;
     }
 
     private function processResult($results, Leankoala $incidentReporter)

@@ -2,10 +2,9 @@
 
 namespace whm\MissingRequest\Cli\Command;
 
-use GuzzleHttp\Psr7\Request;
+use Leankoala\Devices\DeviceFactory;
 use phm\HttpWebdriverClient\Http\Client\HeadlessChrome\HeadlessChromeClient;
 use phm\HttpWebdriverClient\Http\Request\BrowserRequest;
-use phm\HttpWebdriverClient\Http\Request\Device\DeviceFactory;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -40,7 +39,8 @@ class InfoCommand extends MissingRequestCommand
 
             $request = new BrowserRequest('GET', new Uri($input->getArgument('url')), $headers);
 
-            $device = DeviceFactory::create($input->getOption('device'));
+            $deviceFactory = new DeviceFactory();
+            $device = $deviceFactory->create($input->getOption('device'));
             $request->setDevice($device);
 
             $response = $client->sendRequest($request);

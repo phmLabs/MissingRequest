@@ -5,7 +5,7 @@ namespace whm\MissingRequest\Cli\Command;
 use Koalamon\Client\Reporter\Reporter;
 use Koalamon\CookieMakerHelper\CookieMaker;
 use Koalamon\FallbackHelper\FallbackHelper;
-use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeClient;
+use Leankoala\Devices\DeviceFactory;
 use phm\HttpWebdriverClient\Http\Client\HeadlessChrome\HeadlessChromeClient;
 use phm\HttpWebdriverClient\Http\Request\BrowserRequest;
 use Symfony\Component\Console\Input\InputArgument;
@@ -14,9 +14,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use whm\Html\Uri;
 use whm\MissingRequest\Reporter\Leankoala;
-
-// http://status.leankoala.com/p/integrations/missingrequest/rest/config?integration_key=b312997e-122a-45ac-b25b-f1f2fd8effe4
-// leankoala 'https://www.thewebhatesme.com/' -p ED7BD15E-86EA-430F-AFBD-A8F8A7ABC4367 -s https://monitor.leankoala.com/webhook/ -c '{"checkedRequests":{"89819915":{"pattern":"example","relation":"equals","value":"1", "name": "Google Analytics"}}}' -i 575 -z 640 -l '' -w webdriver
 
 class LeankoalaCommand extends MissingRequestCommand
 {
@@ -90,6 +87,11 @@ class LeankoalaCommand extends MissingRequestCommand
 
         $request = new BrowserRequest('GET', $uri, $this->defaultHeaders);
         $request = $request->withCookies($cookies);
+
+        if ($input->hasOption('device')) {
+            $factory = new DeviceFactory();
+            $request->setDevice($factory->create($input->getOption('device'))   );
+        }
 
         try {
             $results = $this->runSingleRequest($request, $collections, $client, $output);

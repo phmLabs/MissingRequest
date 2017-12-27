@@ -4,19 +4,15 @@ namespace whm\MissingRequest\Cli\Command;
 
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeClient;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeResponse;
-use phm\HttpWebdriverClient\Http\Client\Decorator\CacheDecorator;
-use phm\HttpWebdriverClient\Http\Client\Decorator\ClientDecorator;
 use phm\HttpWebdriverClient\Http\Client\Decorator\FileCacheDecorator;
 use phm\HttpWebdriverClient\Http\Client\HeadlessChrome\HeadlessChromeClient;
 use phm\HttpWebdriverClient\Http\Client\HttpClient;
-use phm\HttpWebdriverClient\Http\Client\TimeOutException;
+use phm\HttpWebdriverClient\Http\Response\ScreenshotAwareResponse;
 use phm\HttpWebdriverClient\Http\Response\TimeoutAwareResponse;
 use Psr\Http\Message\RequestInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
-use GuzzleHttp\Psr7\Request;
 use Koalamon\Client\Reporter\Reporter as KoalamonReporter;
-use whm\Html\Uri;
 
 abstract class MissingRequestCommand extends Command
 {
@@ -122,6 +118,12 @@ abstract class MissingRequestCommand extends Command
                         'requests' => $response->getResources(),
                         'timeout' => $timeout
                     );
+
+                    if ($response instanceof ScreenshotAwareResponse && $response->hasScreenshot()) {
+                        $result['screenshot'] = $response->getScreenshot();
+                    }
+
+                    $results[$i][] = $result;
                 }
             }
         }

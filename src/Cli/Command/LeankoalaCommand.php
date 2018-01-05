@@ -36,7 +36,7 @@ class LeankoalaCommand extends MissingRequestCommand
                 new InputOption('login', 'l', InputOption::VALUE_OPTIONAL, 'Login credentials'),
                 new InputOption('client_timeout', 't', InputOption::VALUE_OPTIONAL, 'Client timeout', '31000'),
                 new InputOption('nocache', null, InputOption::VALUE_NONE, 'diable cache'),
-                new InputOption('device', null, InputOption::VALUE_OPTIONAL, 'device', 'MacBookPro152017'),
+                new InputOption('device', 'd', InputOption::VALUE_OPTIONAL, 'device', 'MacBookPro152017'),
             ))
             ->setDescription('Checks if requests are fired and sends the results to koalamon')
             ->setName('leankoala');
@@ -133,10 +133,8 @@ class LeankoalaCommand extends MissingRequestCommand
                     break;
                 };
             }
-
             $incidentReporter->addTestcase($result["url"], $result['mandatoryRequest'], !$requestFound, $result['groupName'], $result['pageKey'], $result['massage'], $result['requests'], $result['htmlContent'], $result['timeout']);
         }
-
         $incidentReporter->getReport();
     }
 }

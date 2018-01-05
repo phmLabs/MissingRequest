@@ -107,7 +107,7 @@ abstract class MissingRequestCommand extends Command
                         $failure = true;
                     }
 
-                    $results[$i][] = array(
+                    $resultArray = array(
                         "url" => (string)$request->getUri(),
                         'mandatoryRequest' => $name . " (" . $pattern . ")",
                         'status' => $status,
@@ -120,10 +120,10 @@ abstract class MissingRequestCommand extends Command
                     );
 
                     if ($response instanceof ScreenshotAwareResponse && $response->hasScreenshot()) {
-                        $result['screenshot'] = $response->getScreenshot();
+                        $resultArray['screenshot'] = $response->getScreenshot();
                     }
 
-                    $results[$i][] = $result;
+                    $results[$i][] = $resultArray;
                 }
             }
         }

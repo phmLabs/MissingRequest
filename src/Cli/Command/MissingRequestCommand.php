@@ -2,6 +2,7 @@
 
 namespace whm\MissingRequest\Cli\Command;
 
+use Leankoala\RetrieverConnector\LeanRetrieverClient;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeClient;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeResponse;
 use phm\HttpWebdriverClient\Http\Client\Decorator\FileCacheDecorator;
@@ -26,6 +27,7 @@ abstract class MissingRequestCommand extends Command
     protected function getClient($clientTimeOut = 31000, $nocache = false)
     {
         $client = new HeadlessChromeClient($clientTimeOut);
+        //$client = new LeanRetrieverClient();
         if ($nocache) {
             return $client;
         } else {

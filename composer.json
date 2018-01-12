@@ -11,6 +11,7 @@
     "phmlabs/xunitreport": "~1.0.0",
     "phmlabs/html": "dev-master",
     "phmLabs/httpwebdriveradapter": "dev-master",
+    "leankoala/retrieverconnector": "dev-master",
     "koalamon/koalamonclient": "dev-master",
     "koalamon/cookiemakerhelper": "dev-master",
     "koalamon/fallbackhelper": "dev-master",

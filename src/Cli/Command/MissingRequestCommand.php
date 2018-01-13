@@ -6,6 +6,7 @@ use Leankoala\RetrieverConnector\LeanRetrieverClient;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeClient;
 use phm\HttpWebdriverClient\Http\Client\Chrome\ChromeResponse;
 use phm\HttpWebdriverClient\Http\Client\Decorator\FileCacheDecorator;
+use phm\HttpWebdriverClient\Http\Client\FallbackClient;
 use phm\HttpWebdriverClient\Http\Client\HeadlessChrome\HeadlessChromeClient;
 use phm\HttpWebdriverClient\Http\Client\HttpClient;
 use phm\HttpWebdriverClient\Http\Response\ScreenshotAwareResponse;
@@ -26,8 +27,12 @@ abstract class MissingRequestCommand extends Command
      */
     protected function getClient($clientTimeOut = 31000, $nocache = false)
     {
-        $client = new HeadlessChromeClient($clientTimeOut);
-        //$client = new LeanRetrieverClient();
+        $leanClient = new LeanRetrieverClient('http://parent:8000');
+        $headlessClient = new HeadlessChromeClient($clientTimeOut);
+
+        $client = new FallbackClient($leanClient);
+        $client->addFallbackClient($headlessClient);
+
         if ($nocache) {
             return $client;
         } else {

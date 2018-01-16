@@ -23,9 +23,9 @@ abstract class MissingRequestCommand extends Command
     private $client;
 
     /**
-     * @return LeanRetrieverClient
+     * @return HttpClient
      */
-    protected function getClient($clientTimeOut = 31000, $nocache = false)
+    protected function getClient($clientTimeOut = 31000)
     {
         $leanClient = new LeanRetrieverClient('http://parent:8000');
         $headlessClient = new HeadlessChromeClient($clientTimeOut);
@@ -33,12 +33,8 @@ abstract class MissingRequestCommand extends Command
         $client = new FallbackClient($leanClient);
         $client->addFallbackClient($headlessClient);
 
-        if ($nocache) {
-            return $client;
-        } else {
-            $chromeClient = $client;
-            return new FileCacheDecorator($chromeClient);
-        }
+        return $client;
+        // return new FileCacheDecorator($client);
     }
 
     protected function runSingleRequest(RequestInterface $request, $collections, HttpClient $client, OutputInterface $output, $maxRetries = 1)

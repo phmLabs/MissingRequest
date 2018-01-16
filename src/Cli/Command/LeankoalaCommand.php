@@ -79,7 +79,7 @@ class LeankoalaCommand extends MissingRequestCommand
         }
 
         /** @var HeadlessChromeClient $client */
-        $client = $this->getClient($input->getOption('client_timeout'), $input->getOption('nocache'));
+        $client = $this->getClient($input->getOption('client_timeout'));
 
         $output->writeln('Checking ' . (string)$uri . ' ...');
 
@@ -87,10 +87,12 @@ class LeankoalaCommand extends MissingRequestCommand
 
         $request = new BrowserRequest('GET', $uri, $this->defaultHeaders);
         $request = $request->withCookies($cookies);
+        
+        $request->setIsCacheAllowed(!$input->getOption('nocache'));
 
         if ($input->hasOption('device')) {
             $factory = new DeviceFactory();
-            $request->setDevice($factory->create($input->getOption('device'))   );
+            $request->setDevice($factory->create($input->getOption('device')));
         }
 
         try {

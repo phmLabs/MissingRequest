@@ -32,12 +32,13 @@ class InfoCommand extends MissingRequestCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /** @var HeadlessChromeClient $client */
-        $client = $this->getClient($input->getOption('client_timeout'), true);
+        $client = $this->getClient($input->getOption('client_timeout'));
 
         try {
             $headers = ['Accept-Encoding' => 'gzip', 'Connection' => 'keep-alive'];
 
             $request = new BrowserRequest('GET', new Uri($input->getArgument('url')), $headers);
+            $request->setIsCacheAllowed(false);
 
             $deviceFactory = new DeviceFactory();
             $device = $deviceFactory->create($input->getOption('device'));

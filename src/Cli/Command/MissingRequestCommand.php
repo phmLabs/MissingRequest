@@ -23,7 +23,7 @@ abstract class MissingRequestCommand extends Command
     private $client;
 
     /**
-     * @return HeadlessChromeClient
+     * @return LeanRetrieverClient
      */
     protected function getClient($clientTimeOut = 31000, $nocache = false)
     {

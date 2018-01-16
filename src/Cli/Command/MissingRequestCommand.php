@@ -33,8 +33,8 @@ abstract class MissingRequestCommand extends Command
         $client = new FallbackClient($leanClient);
         $client->addFallbackClient($headlessClient);
 
-        return $client;
-        // return new FileCacheDecorator($client);
+        // return $client;
+        return new FileCacheDecorator($headlessClient);
     }
 
     protected function runSingleRequest(RequestInterface $request, $collections, HttpClient $client, OutputInterface $output, $maxRetries = 1)

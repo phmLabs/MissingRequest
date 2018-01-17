@@ -27,14 +27,13 @@ abstract class MissingRequestCommand extends Command
      */
     protected function getClient($clientTimeOut = 31000)
     {
-        $leanClient = new LeanRetrieverClient('http://parent:8000');
+        $leanClient = new LeanRetrieverClient(LeanRetrieverClient::guessEndpoint());
         $headlessClient = new HeadlessChromeClient($clientTimeOut);
 
         $client = new FallbackClient($leanClient);
-        $client->addFallbackClient($headlessClient);
+        $client->addFallbackClient(new FileCacheDecorator($headlessClient));
 
-        // return $client;
-        return new FileCacheDecorator($headlessClient);
+        return $client;
     }
 
     protected function runSingleRequest(RequestInterface $request, $collections, HttpClient $client, OutputInterface $output, $maxRetries = 1)
